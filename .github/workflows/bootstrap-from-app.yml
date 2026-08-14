@@ -27,12 +27,18 @@ jobs:
           fetch-depth: 1
           lfs: true
 
+      - name: Stage source snapshot outside working tree
+        shell: bash
+        run: |
+          rm -rf /tmp/dino-source
+          mkdir -p /tmp/dino-source
+          rsync -a --exclude='.git/' _source/ /tmp/dino-source/
+
       - name: Replace test contents with source snapshot
         shell: bash
         run: |
-          find . -mindepth 1 -maxdepth 1 ! -name '.git' ! -name '_source' -exec rm -rf {} +
-          rsync -a --delete --exclude='.git/' _source/ ./
-          rm -rf _source
+          find . -mindepth 1 -maxdepth 1 ! -name '.git' -exec rm -rf {} +
+          rsync -a /tmp/dino-source/ ./
 
       - name: Commit synchronized snapshot
         shell: bash
