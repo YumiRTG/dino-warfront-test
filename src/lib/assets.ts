@@ -2,6 +2,7 @@
 
 const HOMEPAGE_OPTIMIZED_ASSETS = new Set([
   'banner-bg.png',
+  'hero-nyra.png',
   'dino-tyranno.png',
   'dino-raptor.png',
   'dino-triceratops.png',
