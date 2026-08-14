@@ -13,10 +13,7 @@ import {
   saveSession,
   type AuthSession,
 } from '@/lib/auth'
-import {
-  ensureAnonymousAuth,
-  loginWithAccountId,
-} from '@/lib/firebaseAccounts'
+import { loginWithAccountId } from '@/lib/firebaseAccounts'
 
 type AuthResult =
   | { ok: true; accountId: string; displayName: string; powerScore?: number }
@@ -38,9 +35,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [busy, setBusy] = useState(false)
 
   useEffect(() => {
+    // A returning visitor can render from the locally stored session immediately.
+    // Firebase anonymous auth is now started only when a feature actually needs
+    // Firestore, avoiding an unnecessary auth/network handshake for pure visitors.
     setSession(loadSession())
     setReady(true)
-    ensureAnonymousAuth().catch(() => {})
   }, [])
 
   const login = useCallback(async (accountId: string) => {
