@@ -126,16 +126,15 @@ export default async function handler(req, res) {
     const db = await getDb()
     const players = collection(db, 'players')
 
-    // count() and sum() must be separate queries. Combined into one aggregation,
-    // Firestore restricts the whole result to documents that have the summed
-    // field, so the player count silently dropped from 13 to 9 because four
-    // accounts have never recorded a troopKills value.
-    const [playerCount, killsAgg, allianceAgg, topDoc, seenDoc, ranks, arena, teamArena, alliances] =
+    // count() and sum() stay as aggregation queries: they transmit only the
+    // aggregate result and avoid downloading every player document.
+    // The power leaderboard already contains the strongest player, so the old
+    // extra top-1 totalScore query was redundant and has been removed.
+    const [playerCount, killsAgg, allianceAgg, seenDoc, ranks, arena, teamArena, alliances] =
       await Promise.all([
         getAggregateFromServer(players, { n: count() }),
         getAggregateFromServer(players, { kills: sum('troopKills') }),
         getAggregateFromServer(collection(db, 'alliances'), { n: count() }),
-        getDocs(query(players, orderBy('totalScore', 'desc'), limit(1))),
         getDocs(query(players, orderBy('lastOnline', 'desc'), limit(1))),
         Promise.all(RANK_FIELDS.map((c) => topBy(db, c.field, c.detail, 10))),
         ladder(db, 'arena', 5),
@@ -143,8 +142,8 @@ export default async function handler(req, res) {
         getDocs(query(collection(db, 'alliances'), orderBy('totalPower', 'desc'), limit(6))),
       ])
 
-    const top = topDoc.docs[0]?.data()
     const seenAt = seenDoc.docs[0]?.data()?.lastOnline?.seconds
+    const topPower = num(ranks[0]?.[0]?.value)
 
     res.status(200).json({
       generatedAt: Date.now(),
@@ -152,7 +151,7 @@ export default async function handler(req, res) {
         commanders: playerCount.data().n,
         alliances: allianceAgg.data().n,
         troopKills: num(killsAgg.data().kills),
-        topPower: Math.max(num(top?.totalScore), num(top?.powerScore)),
+        topPower,
         lastSeenMinutes: seenAt
           ? Math.max(0, Math.round((Date.now() - seenAt * 1000) / 60000))
           : null,
@@ -175,8 +174,6 @@ export default async function handler(req, res) {
       }),
     })
   } catch (err) {
-    // Never let the front page fail over standings. The client falls back to
-    // hiding those sections when this errors.
     res.status(200).json({ error: String(err?.code || err?.message || err) })
   }
 }
