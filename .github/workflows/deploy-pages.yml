@@ -49,32 +49,29 @@ jobs:
           output = public / 'optimized'
           output.mkdir(parents=True, exist_ok=True)
 
-          prefixes = (
-              'dino-', 'campaign-', 'env-', 'feat-', 'hero-',
-              'icon-', 'res-', 'troop-',
-          )
-
-          def selected(path: Path) -> bool:
-              name = path.name
-              if name == 'hero-poster.png':
-                  return False
-              return (
-                  name == 'banner-bg.png'
-                  or name == 'ui-hero-screen.png'
-                  or name.startswith(prefixes)
-              )
+          files = [
+              'banner-bg.png',
+              'dino-tyranno.png',
+              'dino-raptor.png',
+              'dino-triceratops.png',
+              'dino-dilo.png',
+              'dino-stego.png',
+              'dino-allo.png',
+              'dino-ptera.png',
+              'dino-dragon.png',
+          ]
 
           total_before = 0
           total_after = 0
-          count = 0
 
-          for src in sorted(public.glob('*.png')):
-              if not selected(src):
-                  continue
+          for name in files:
+              src = public / name
+              if not src.exists():
+                  raise SystemExit(f'Missing source image: {src}')
 
-              background = src.name.startswith(('campaign-', 'env-', 'feat-')) or src.name == 'banner-bg.png'
-              max_side = 1600 if background else 1200
-              quality = 82 if background else 86
+              is_background = name == 'banner-bg.png'
+              max_side = 1600 if is_background else 1200
+              quality = 82 if is_background else 86
               dst = output / f'{src.stem}.webp'
 
               with Image.open(src) as im:
@@ -82,20 +79,16 @@ jobs:
                   if im.mode not in ('RGB', 'RGBA'):
                       im = im.convert('RGBA' if 'transparency' in im.info else 'RGB')
                   im.thumbnail((max_side, max_side), Image.Resampling.LANCZOS)
-                  im.save(dst, 'WEBP', quality=quality, method=6)
+                  im.save(dst, 'WEBP', quality=quality, method=5)
 
               before = src.stat().st_size
               after = dst.stat().st_size
               total_before += before
               total_after += after
-              count += 1
-              print(f'{src.name}: {before / 1024:.0f} KB -> {after / 1024:.0f} KB')
-
-          if count == 0:
-              raise SystemExit('No images were optimized; refusing to publish broken asset paths.')
+              print(f'{name}: {before / 1024:.0f} KB -> {after / 1024:.0f} KB')
 
           saving = 100 * (1 - total_after / total_before) if total_before else 0
-          print(f'Optimized {count} images: {total_before / 1024 / 1024:.1f} MB -> {total_after / 1024 / 1024:.1f} MB ({saving:.1f}% smaller)')
+          print(f'Homepage image trial: {total_before / 1024 / 1024:.1f} MB -> {total_after / 1024 / 1024:.1f} MB ({saving:.1f}% smaller)')
           PY
 
       - name: Refresh cached public game snapshot
