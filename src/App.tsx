@@ -1,24 +1,34 @@
+import { lazy, Suspense } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router'
 import MainLayout from '@/layouts/MainLayout'
 import HomePage from '@/pages/HomePage'
-import StoryPage from '@/pages/StoryPage'
-import FeaturesPage from '@/pages/FeaturesPage'
-import BaseFeaturePage from '@/pages/BaseFeaturePage'
-import HeroesFeaturePage from '@/pages/HeroesFeaturePage'
-import DinosFeaturePage from '@/pages/DinosFeaturePage'
-import CampaignFeaturePage from '@/pages/CampaignFeaturePage'
-import PlayPage from '@/pages/PlayPage'
-import BestiaryPage from '@/pages/BestiaryPage'
-import DownloadPage from '@/pages/DownloadPage'
-import DevlogPage from '@/pages/DevlogPage'
-import ModesPage from '@/pages/ModesPage'
-import CommanderPage from '@/pages/CommanderPage'
-import RedeemPage from '@/pages/RedeemPage'
-import AlliancePage from '@/pages/AlliancePage'
-import TowerDefensePage from '@/pages/modes/TowerDefensePage'
-import ArenaPage from '@/pages/modes/ArenaPage'
-import WorldMapPage from '@/pages/modes/WorldMapPage'
-import CampaignModePage from '@/pages/modes/CampaignPage'
+
+const StoryPage = lazy(() => import('@/pages/StoryPage'))
+const FeaturesPage = lazy(() => import('@/pages/FeaturesPage'))
+const BaseFeaturePage = lazy(() => import('@/pages/BaseFeaturePage'))
+const HeroesFeaturePage = lazy(() => import('@/pages/HeroesFeaturePage'))
+const DinosFeaturePage = lazy(() => import('@/pages/DinosFeaturePage'))
+const CampaignFeaturePage = lazy(() => import('@/pages/CampaignFeaturePage'))
+const PlayPage = lazy(() => import('@/pages/PlayPage'))
+const BestiaryPage = lazy(() => import('@/pages/BestiaryPage'))
+const DownloadPage = lazy(() => import('@/pages/DownloadPage'))
+const DevlogPage = lazy(() => import('@/pages/DevlogPage'))
+const ModesPage = lazy(() => import('@/pages/ModesPage'))
+const CommanderPage = lazy(() => import('@/pages/CommanderPage'))
+const RedeemPage = lazy(() => import('@/pages/RedeemPage'))
+const AlliancePage = lazy(() => import('@/pages/AlliancePage'))
+const TowerDefensePage = lazy(() => import('@/pages/modes/TowerDefensePage'))
+const ArenaPage = lazy(() => import('@/pages/modes/ArenaPage'))
+const WorldMapPage = lazy(() => import('@/pages/modes/WorldMapPage'))
+const CampaignModePage = lazy(() => import('@/pages/modes/CampaignPage'))
+
+function RouteFallback() {
+  return <div className="min-h-[45vh]" aria-hidden />
+}
+
+const deferred = (node: React.ReactNode) => (
+  <Suspense fallback={<RouteFallback />}>{node}</Suspense>
+)
 
 export default function App() {
   return (
@@ -26,24 +36,24 @@ export default function App() {
       <Routes>
         <Route element={<MainLayout />}>
           <Route index element={<HomePage />} />
-          <Route path="story" element={<StoryPage />} />
-          <Route path="features" element={<FeaturesPage />} />
-          <Route path="features/base" element={<BaseFeaturePage />} />
-          <Route path="features/heroes" element={<HeroesFeaturePage />} />
-          <Route path="features/dinos" element={<DinosFeaturePage />} />
-          <Route path="features/campaign" element={<CampaignFeaturePage />} />
-          <Route path="modes" element={<ModesPage />} />
-          <Route path="modes/tower-defense" element={<TowerDefensePage />} />
-          <Route path="modes/arena" element={<ArenaPage />} />
-          <Route path="modes/world-map" element={<WorldMapPage />} />
-          <Route path="modes/campaign" element={<CampaignModePage />} />
-          <Route path="play" element={<PlayPage />} />
-          <Route path="bestiary" element={<BestiaryPage />} />
-          <Route path="download" element={<DownloadPage />} />
-          <Route path="progress" element={<DevlogPage />} />
-          <Route path="redeem" element={<RedeemPage />} />
-          <Route path="commander/:id" element={<CommanderPage />} />
-          <Route path="alliance/:id" element={<AlliancePage />} />
+          <Route path="story" element={deferred(<StoryPage />)} />
+          <Route path="features" element={deferred(<FeaturesPage />)} />
+          <Route path="features/base" element={deferred(<BaseFeaturePage />)} />
+          <Route path="features/heroes" element={deferred(<HeroesFeaturePage />)} />
+          <Route path="features/dinos" element={deferred(<DinosFeaturePage />)} />
+          <Route path="features/campaign" element={deferred(<CampaignFeaturePage />)} />
+          <Route path="modes" element={deferred(<ModesPage />)} />
+          <Route path="modes/tower-defense" element={deferred(<TowerDefensePage />)} />
+          <Route path="modes/arena" element={deferred(<ArenaPage />)} />
+          <Route path="modes/world-map" element={deferred(<WorldMapPage />)} />
+          <Route path="modes/campaign" element={deferred(<CampaignModePage />)} />
+          <Route path="play" element={deferred(<PlayPage />)} />
+          <Route path="bestiary" element={deferred(<BestiaryPage />)} />
+          <Route path="download" element={deferred(<DownloadPage />)} />
+          <Route path="progress" element={deferred(<DevlogPage />)} />
+          <Route path="redeem" element={deferred(<RedeemPage />)} />
+          <Route path="commander/:id" element={deferred(<CommanderPage />)} />
+          <Route path="alliance/:id" element={deferred(<AlliancePage />)} />
           <Route path="tower-defense" element={<Navigate to="/modes/tower-defense" replace />} />
           <Route path="arena" element={<Navigate to="/modes/arena" replace />} />
           <Route path="world-map" element={<Navigate to="/modes/world-map" replace />} />
