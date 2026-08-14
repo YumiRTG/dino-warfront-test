@@ -2,8 +2,7 @@ import {
   collection,
   doc,
   getDoc,
-  setDoc,
-  addDoc,
+  runTransaction,
   serverTimestamp,
   Timestamp,
 } from 'firebase/firestore'
@@ -24,6 +23,41 @@ export const WEB_REWARDS_ROOT = 'webRewards'
 export const WEB_SPINS_ROOT = 'webRouletteSpins'
 export const WEB_DAILY_LOGIN_ROOT = 'webDailyLogin'
 
+const STATUS_CACHE_MS = 5 * 60 * 1000
+const cacheKey = (kind: string, accountId: string) => `dw_${kind}_${accountId}`
+
+type CachedSpin = { at: number; lastSpinAt: number | null }
+type CachedDaily = { at: number; lastClaimDate: string | null; streak: number }
+
+function readSessionCache<T extends { at: number }>(key: string): T | null {
+  try {
+    const raw = sessionStorage.getItem(key)
+    if (!raw) return null
+    const parsed = JSON.parse(raw) as T
+    if (!parsed?.at || Date.now() - parsed.at > STATUS_CACHE_MS) return null
+    return parsed
+  } catch {
+    return null
+  }
+}
+
+function writeSessionCache(key: string, value: unknown) {
+  try {
+    sessionStorage.setItem(key, JSON.stringify(value))
+  } catch {
+    // Private browsing/full quota: server state remains authoritative.
+  }
+}
+
+function timestampMs(value: unknown): number {
+  if (value instanceof Timestamp) return value.toMillis()
+  if (typeof value === 'number' && Number.isFinite(value)) return value
+  if (value && typeof (value as { seconds?: number }).seconds === 'number') {
+    return (value as { seconds: number }).seconds * 1000
+  }
+  return 0
+}
+
 export type SpinStatus = {
   canSpin: boolean
   lastSpinAt: number | null
@@ -31,31 +65,9 @@ export type SpinStatus = {
   msRemaining: number
 }
 
-export async function getSpinStatus(accountId: string): Promise<SpinStatus> {
-  await ensureAnonymousAuth()
-  const { db } = getFirebase()
-  const ref = doc(db, WEB_SPINS_ROOT, accountId)
-  const snap = await getDoc(ref)
-
-  if (!snap.exists()) {
-    return { canSpin: true, lastSpinAt: null, nextSpinAt: null, msRemaining: 0 }
-  }
-
-  const data = snap.data()
-  const last = data.lastSpinAt
-  let lastMs = 0
-  if (last instanceof Timestamp) lastMs = last.toMillis()
-  else if (typeof last === 'number') lastMs = last
-  else if (last && typeof (last as { seconds?: number }).seconds === 'number') {
-    lastMs = (last as { seconds: number }).seconds * 1000
-  }
-
-  if (!lastMs) {
-    return { canSpin: true, lastSpinAt: null, nextSpinAt: null, msRemaining: 0 }
-  }
-
+function spinStatusFromLast(lastMs: number | null, now = Date.now()): SpinStatus {
+  if (!lastMs) return { canSpin: true, lastSpinAt: null, nextSpinAt: null, msRemaining: 0 }
   const next = lastMs + SPIN_COOLDOWN_MS
-  const now = Date.now()
   const msRemaining = Math.max(0, next - now)
   return {
     canSpin: msRemaining <= 0,
@@ -65,10 +77,26 @@ export async function getSpinStatus(accountId: string): Promise<SpinStatus> {
   }
 }
 
+export async function getSpinStatus(accountId: string): Promise<SpinStatus> {
+  const key = cacheKey('spin', accountId)
+  const cached = readSessionCache<CachedSpin>(key)
+  if (cached) return spinStatusFromLast(cached.lastSpinAt)
+
+  await ensureAnonymousAuth()
+  const { db } = getFirebase()
+  const snap = await getDoc(doc(db, WEB_SPINS_ROOT, accountId))
+  const lastSpinAt = snap.exists() ? timestampMs(snap.data().lastSpinAt) || null : null
+
+  writeSessionCache(key, { at: Date.now(), lastSpinAt } satisfies CachedSpin)
+  return spinStatusFromLast(lastSpinAt)
+}
+
 /**
- * Records a roulette win:
- * 1) writes pending reward for the game to claim
- * 2) updates last spin timestamp (1 spin / 24h)
+ * Records a roulette win atomically.
+ *
+ * One transaction read checks the cooldown and obtains totalSpins. Previously
+ * this path read the same spin document twice (once in getSpinStatus and once
+ * again for totalSpins), which doubled reads and still allowed race conditions.
  */
 export async function grantRouletteReward(
   accountId: string,
@@ -77,43 +105,53 @@ export async function grantRouletteReward(
   try {
     await ensureAnonymousAuth()
     const { db } = getFirebase()
+    const spinRef = doc(db, WEB_SPINS_ROOT, accountId)
+    const rewardRef = doc(collection(db, WEB_REWARDS_ROOT, accountId, 'items'))
 
-    // Enforce cooldown server-side (best effort)
-    const status = await getSpinStatus(accountId)
-    if (!status.canSpin) {
-      return { ok: false, error: 'Next free spin is not ready yet.' }
-    }
+    await runTransaction(db, async (tx) => {
+      const spinSnap = await tx.get(spinRef)
+      const data = spinSnap.exists() ? spinSnap.data() : undefined
+      const lastMs = timestampMs(data?.lastSpinAt)
+      const status = spinStatusFromLast(lastMs || null)
+      if (!status.canSpin) throw new Error('DW_SPIN_COOLDOWN')
 
-    const itemsCol = collection(db, WEB_REWARDS_ROOT, accountId, 'items')
-    const rewardRef = await addDoc(itemsCol, {
-      itemType: prize.itemType,
-      amount: prize.amount,
-      label: prize.label,
-      sublabel: prize.sublabel,
-      source: 'roulette',
-      claimed: false,
-      createdAt: serverTimestamp(),
+      const prevTotal = typeof data?.totalSpins === 'number' ? data.totalSpins : 0
+
+      tx.set(rewardRef, {
+        itemType: prize.itemType,
+        amount: prize.amount,
+        label: prize.label,
+        sublabel: prize.sublabel,
+        source: 'roulette',
+        claimed: false,
+        createdAt: serverTimestamp(),
+      })
+
+      tx.set(
+        spinRef,
+        {
+          lastSpinAt: serverTimestamp(),
+          lastPrizeId: prize.id,
+          lastRewardId: rewardRef.id,
+          totalSpins: prevTotal + 1,
+        },
+        { merge: true }
+      )
     })
 
-    const spinRef = doc(db, WEB_SPINS_ROOT, accountId)
-    const spinSnap = await getDoc(spinRef)
-    const prevTotal =
-      typeof spinSnap.data()?.totalSpins === 'number' ? (spinSnap.data()!.totalSpins as number) : 0
-
-    await setDoc(
-      spinRef,
-      {
-        lastSpinAt: serverTimestamp(),
-        lastPrizeId: prize.id,
-        lastRewardId: rewardRef.id,
-        totalSpins: prevTotal + 1,
-      },
-      { merge: true }
-    )
+    writeSessionCache(cacheKey('spin', accountId), {
+      at: Date.now(),
+      lastSpinAt: Date.now(),
+    } satisfies CachedSpin)
 
     return { ok: true, rewardId: rewardRef.id }
   } catch (err) {
     const msg = (err as { message?: string })?.message || 'Could not save reward.'
+    if (msg.includes('DW_SPIN_COOLDOWN')) {
+      // Another tab/device may have claimed while our short UI cache was stale.
+      try { sessionStorage.removeItem(cacheKey('spin', accountId)) } catch {}
+      return { ok: false, error: 'Next free spin is not ready yet.' }
+    }
     if (msg.includes('permission')) {
       return {
         ok: false,
@@ -147,50 +185,47 @@ export type DailyLoginStatus = {
   todaysReward: DailyLoginReward
 }
 
-export async function getDailyLoginStatus(accountId: string): Promise<DailyLoginStatus> {
-  await ensureAnonymousAuth()
-  const { db } = getFirebase()
+function dailyStatusFromData(lastClaimDate: string | null, rawStreak: number): DailyLoginStatus {
   const today = utcDateKey()
-  const ref = doc(db, WEB_DAILY_LOGIN_ROOT, accountId)
-  const snap = await getDoc(ref)
-
-  const data = snap.exists() ? snap.data() : null
-  const lastClaimDate =
-    typeof data?.lastClaimDate === 'string' ? (data.lastClaimDate as string) : null
-  let streak = typeof data?.streak === 'number' ? (data.streak as number) : 0
-
+  let streak = rawStreak
   const alreadyClaimedToday = lastClaimDate === today
   const claimedYesterday = lastClaimDate === previousUtcDateKey()
 
-  // If missed a day (not today, not yesterday), streak resets for next claim
-  if (!alreadyClaimedToday && !claimedYesterday && lastClaimDate) {
-    streak = 0
-  }
+  if (!alreadyClaimedToday && !claimedYesterday && lastClaimDate) streak = 0
 
-  const nextDay = alreadyClaimedToday
-    ? (streak % DAILY_LOGIN_REWARDS.length) + 1
-    : (streak % DAILY_LOGIN_REWARDS.length) + 1
-
-  // When claiming next, day index is based on streak after claim
-  const dayIfClaimNow = alreadyClaimedToday
-    ? nextDay
-    : ((streak % DAILY_LOGIN_REWARDS.length) + 1)
-
+  const nextDay = (streak % DAILY_LOGIN_REWARDS.length) + 1
   return {
     canClaim: !alreadyClaimedToday,
     streak,
-    nextDay: dayIfClaimNow,
+    nextDay,
     lastClaimDate,
     todayKey: today,
     msUntilReset: msUntilNextUtcMidnight(),
     rewards: DAILY_LOGIN_REWARDS,
-    todaysReward: rewardForStreakDay(dayIfClaimNow),
+    todaysReward: rewardForStreakDay(nextDay),
   }
 }
 
+export async function getDailyLoginStatus(accountId: string): Promise<DailyLoginStatus> {
+  const key = cacheKey('daily', accountId)
+  const cached = readSessionCache<CachedDaily>(key)
+  if (cached) return dailyStatusFromData(cached.lastClaimDate, cached.streak)
+
+  await ensureAnonymousAuth()
+  const { db } = getFirebase()
+  const snap = await getDoc(doc(db, WEB_DAILY_LOGIN_ROOT, accountId))
+  const data = snap.exists() ? snap.data() : undefined
+  const lastClaimDate = typeof data?.lastClaimDate === 'string' ? data.lastClaimDate : null
+  const streak = typeof data?.streak === 'number' ? data.streak : 0
+
+  writeSessionCache(key, { at: Date.now(), lastClaimDate, streak } satisfies CachedDaily)
+  return dailyStatusFromData(lastClaimDate, streak)
+}
+
 /**
- * Claim daily login package → writes items to webRewards for the game.
- * One claim per UTC calendar day. Streak continues if claimed yesterday.
+ * Claim daily login package atomically. The status document is read once inside
+ * the transaction and reused for streak + totalClaims, replacing two reads on
+ * every claim and preventing two tabs from claiming the same UTC day.
  */
 export async function claimDailyLoginReward(
   accountId: string
@@ -201,51 +236,65 @@ export async function claimDailyLoginReward(
   try {
     await ensureAnonymousAuth()
     const { db } = getFirebase()
-    const status = await getDailyLoginStatus(accountId)
+    const loginRef = doc(db, WEB_DAILY_LOGIN_ROOT, accountId)
+    const rewardRef = doc(collection(db, WEB_REWARDS_ROOT, accountId, 'items'))
 
-    if (!status.canClaim) {
-      return { ok: false, error: 'Daily login already claimed today. Come back tomorrow.' }
-    }
+    let claimedReward: DailyLoginReward | null = null
+    let claimedStreak = 0
 
-    const newStreak = status.streak + 1
-    const reward = rewardForStreakDay(newStreak)
-    const today = utcDateKey()
+    await runTransaction(db, async (tx) => {
+      const loginSnap = await tx.get(loginRef)
+      const data = loginSnap.exists() ? loginSnap.data() : undefined
+      const lastClaimDate = typeof data?.lastClaimDate === 'string' ? data.lastClaimDate : null
+      const rawStreak = typeof data?.streak === 'number' ? data.streak : 0
+      const status = dailyStatusFromData(lastClaimDate, rawStreak)
 
-    const itemsCol = collection(db, WEB_REWARDS_ROOT, accountId, 'items')
-    await addDoc(itemsCol, {
-      itemType: reward.itemType,
-      amount: reward.amount,
-      label: reward.label,
-      sublabel: reward.sublabel,
-      source: 'daily_login',
-      day: reward.day,
-      claimed: false,
-      createdAt: serverTimestamp(),
+      if (!status.canClaim) throw new Error('DW_DAILY_CLAIMED')
+
+      claimedStreak = status.streak + 1
+      claimedReward = rewardForStreakDay(claimedStreak)
+      const totalClaims = typeof data?.totalClaims === 'number' ? data.totalClaims + 1 : 1
+
+      tx.set(rewardRef, {
+        itemType: claimedReward.itemType,
+        amount: claimedReward.amount,
+        label: claimedReward.label,
+        sublabel: claimedReward.sublabel,
+        source: 'daily_login',
+        day: claimedReward.day,
+        claimed: false,
+        createdAt: serverTimestamp(),
+      })
+
+      tx.set(
+        loginRef,
+        {
+          lastClaimDate: utcDateKey(),
+          streak: claimedStreak,
+          totalClaims,
+          lastRewardDay: claimedReward.day,
+          lastRewardLabel: claimedReward.label,
+          updatedAt: serverTimestamp(),
+        },
+        { merge: true }
+      )
     })
 
-    const loginRef = doc(db, WEB_DAILY_LOGIN_ROOT, accountId)
-    const prevSnap = await getDoc(loginRef)
-    const totalClaims =
-      typeof prevSnap.data()?.totalClaims === 'number'
-        ? (prevSnap.data()!.totalClaims as number) + 1
-        : 1
+    if (!claimedReward) throw new Error('Could not determine daily reward.')
 
-    await setDoc(
-      loginRef,
-      {
-        lastClaimDate: today,
-        streak: newStreak,
-        totalClaims,
-        lastRewardDay: reward.day,
-        lastRewardLabel: reward.label,
-        updatedAt: serverTimestamp(),
-      },
-      { merge: true }
-    )
+    writeSessionCache(cacheKey('daily', accountId), {
+      at: Date.now(),
+      lastClaimDate: utcDateKey(),
+      streak: claimedStreak,
+    } satisfies CachedDaily)
 
-    return { ok: true, reward, streak: newStreak }
+    return { ok: true, reward: claimedReward, streak: claimedStreak }
   } catch (err) {
     const msg = (err as { message?: string })?.message || 'Could not claim daily reward.'
+    if (msg.includes('DW_DAILY_CLAIMED')) {
+      try { sessionStorage.removeItem(cacheKey('daily', accountId)) } catch {}
+      return { ok: false, error: 'Daily login already claimed today. Come back tomorrow.' }
+    }
     if (msg.includes('permission')) {
       return {
         ok: false,
