@@ -32,12 +32,12 @@ jobs:
         run: |
           rm -rf /tmp/dino-source
           mkdir -p /tmp/dino-source
-          rsync -a --exclude='.git/' _source/ /tmp/dino-source/
+          rsync -a --exclude='.git/' --exclude='.github/' _source/ /tmp/dino-source/
 
       - name: Replace test contents with source snapshot
         shell: bash
         run: |
-          find . -mindepth 1 -maxdepth 1 ! -name '.git' -exec rm -rf {} +
+          find . -mindepth 1 -maxdepth 1 ! -name '.git' ! -name '.github' -exec rm -rf {} +
           rsync -a /tmp/dino-source/ ./
 
       - name: Commit synchronized snapshot
