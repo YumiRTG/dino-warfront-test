@@ -20,14 +20,9 @@ import ArenaPage from '@/pages/modes/ArenaPage'
 import WorldMapPage from '@/pages/modes/WorldMapPage'
 import CampaignModePage from '@/pages/modes/CampaignPage'
 
-/**
- * Premium multi-page site.
- * Kept: Account system + Home, Story, Features
- * Rest: curated high-impact pages only
- */
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <Routes>
         <Route element={<MainLayout />}>
           <Route index element={<HomePage />} />
@@ -37,7 +32,6 @@ export default function App() {
           <Route path="features/heroes" element={<HeroesFeaturePage />} />
           <Route path="features/dinos" element={<DinosFeaturePage />} />
           <Route path="features/campaign" element={<CampaignFeaturePage />} />
-          {/* Major modes */}
           <Route path="modes" element={<ModesPage />} />
           <Route path="modes/tower-defense" element={<TowerDefensePage />} />
           <Route path="modes/arena" element={<ArenaPage />} />
@@ -48,15 +42,12 @@ export default function App() {
           <Route path="download" element={<DownloadPage />} />
           <Route path="progress" element={<DevlogPage />} />
           <Route path="redeem" element={<RedeemPage />} />
-          {/* Public profiles */}
           <Route path="commander/:id" element={<CommanderPage />} />
           <Route path="alliance/:id" element={<AlliancePage />} />
-          {/* Short aliases */}
           <Route path="tower-defense" element={<Navigate to="/modes/tower-defense" replace />} />
           <Route path="arena" element={<Navigate to="/modes/arena" replace />} />
           <Route path="world-map" element={<Navigate to="/modes/world-map" replace />} />
           <Route path="campaign" element={<Navigate to="/modes/campaign" replace />} />
-          {/* Legacy redirects */}
           <Route path="daily" element={<Navigate to="/play" replace />} />
           <Route path="roulette" element={<Navigate to="/play" replace />} />
           <Route path="dinos" element={<Navigate to="/features/dinos" replace />} />
