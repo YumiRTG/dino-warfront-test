@@ -1,14 +1,15 @@
-import { useEffect } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import { Outlet, useLocation } from 'react-router'
 import { AuthProvider } from '@/hooks/useAuth'
 import Navigation from '@/sections/Navigation'
 import Footer from '@/sections/Footer'
-import SupportChat from '@/components/SupportChat'
 import PageTransition from '@/components/PageTransition'
 import { asset } from '@/lib/assets'
 import { useSmoothScroll } from '@/hooks/useMotion'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { ensureGsap, initBackgroundScroll } from '@/lib/motion'
+
+const SupportChat = lazy(() => import('@/components/SupportChat'))
 
 // Fewer particles = less GPU thrash / flicker on mid-range phones
 const PARTICLES = Array.from({ length: 18 }, (_, i) => ({
@@ -22,12 +23,10 @@ export default function MainLayout() {
   const { pathname } = useLocation()
   useSmoothScroll()
 
-  // Scroll to top on route change only
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior })
   }, [pathname])
 
-  // Background scrub once — re-creating it every route caused layer jumps/flicker
   useEffect(() => {
     ensureGsap()
     const killBg = initBackgroundScroll()
@@ -43,7 +42,8 @@ export default function MainLayout() {
       <div className="relative min-h-screen flex flex-col bg-[var(--void)]">
         <div className="site-atmosphere" aria-hidden />
 
-        {/* Soft fixed backgrounds — no mix-blend (blend + animation = flicker on some GPUs) */}
+        {/* One lightweight global texture is enough. The former second fixed
+            background was a ~2.6 MB PNG downloaded on every first visit. */}
         <div
           data-bg-scroll="0.28"
           className="fixed inset-0 z-0 pointer-events-none opacity-[0.28] fx-bg-layer"
@@ -57,27 +57,14 @@ export default function MainLayout() {
           }}
         />
         <div
-          data-bg-scroll="0.4"
-          className="fixed inset-0 z-0 pointer-events-none opacity-[0.12] fx-bg-layer"
-          aria-hidden
-          style={{
-            backgroundImage: `url(${asset('env-loading-scene-6.png')})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            filter: 'saturate(0.8) brightness(0.38)',
-            transform: 'scale(1.1)',
-          }}
-        />
-        <div
           className="fixed inset-0 z-0 pointer-events-none"
           aria-hidden
           style={{
             background:
-              'linear-gradient(180deg, rgba(5,4,10,0.3) 0%, rgba(5,4,10,0.62) 40%, rgba(5,4,10,0.94) 100%)',
+              'radial-gradient(circle at 65% 20%, rgba(72,91,64,0.12), transparent 38%), linear-gradient(180deg, rgba(5,4,10,0.3) 0%, rgba(5,4,10,0.62) 40%, rgba(5,4,10,0.94) 100%)',
           }}
         />
 
-        {/* Soft fog — desktop only (CSS hides on small screens) */}
         <div className="fx-fog fx-fog-a fx-desktop-only" aria-hidden />
         <div className="fx-fog fx-fog-b fx-desktop-only" aria-hidden />
 
@@ -105,7 +92,6 @@ export default function MainLayout() {
           }}
         />
 
-        {/* Light sweep only on desktop — common flicker source on phones */}
         <div className="fx-light-sweep fx-desktop-only" aria-hidden />
 
         <div className="fx-particles fx-desktop-only" aria-hidden>
@@ -133,7 +119,9 @@ export default function MainLayout() {
           </main>
           <Footer />
           <PageTransition />
-          <SupportChat />
+          <Suspense fallback={null}>
+            <SupportChat />
+          </Suspense>
         </div>
       </div>
     </AuthProvider>
