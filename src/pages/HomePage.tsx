@@ -1,588 +1,567 @@
+import { useState } from 'react'
 import { Link } from 'react-router'
 import { asset } from '@/lib/assets'
 import { usePageMotion } from '@/hooks/useMotion'
 import { MODES } from '@/config/modes'
 import TopCommanders from '@/sections/TopCommanders'
 import WarRoom from '@/sections/WarRoom'
+import './HomePage.css'
 
-const PILLARS = [
+const WAR_LOOP = [
   {
-    title: 'Build your base',
-    text: 'The plaza is only the first layer. Offline production feeds a city that never fully sleeps…',
-    hook: 'What you raise first decides how long you last.',
+    step: '01',
+    kicker: 'City command',
+    title: 'Build',
+    text: 'Raise the city, secure production and decide what your empire can afford before the first march ever leaves the gate.',
+    metric: 'Offline economy',
+    value: 'Always moving',
     img: asset('feature-base-hero.jpg'),
-    pos: 'center 35%',
+    pos: 'center 38%',
     to: '/features/base',
   },
   {
-    title: 'Command heroes',
-    text: 'Nyra is the face of the tribe — not the whole war. Other legends wait behind the first ranks.',
-    hook: 'Open the roster. The real kits are deeper.',
-    img: asset('feature-heroes-hero.jpg'),
-    pos: 'center center',
-    to: '/features/heroes',
-  },
-  {
-    title: 'Tame dinosaurs',
-    text: 'You see the apex names. You do not yet see how they break a formation together.',
-    hook: 'Roles only make sense once you hunt.',
+    step: '02',
+    kicker: 'Prehistoric arsenal',
+    title: 'Tame',
+    text: 'Dinosaurs are not decoration. Build a roster around speed, control, defense and raw pressure, then pair it with the right heroes.',
+    metric: 'Combat identity',
+    value: 'Role driven',
     img: asset('feature-dinos-hero.jpg'),
     pos: 'center center',
     to: '/features/dinos',
   },
   {
-    title: 'Conquer campaigns',
-    text: 'Jungle first. Then ice, fire, water — each realm changes the cost of a mistake.',
-    hook: 'The map does not explain itself on page one.',
-    img: asset('feature-campaign-hero.jpg'),
-    pos: 'center 35%',
-    to: '/features/campaign',
+    step: '03',
+    kicker: 'Persistent world',
+    title: 'March',
+    text: 'Leave the city and enter a shared 8000 × 8000 world. Gather, scout, reinforce, hunt, raid and rally while other commanders do the same.',
+    metric: 'World scale',
+    value: '8000 × 8000',
+    img: asset('modes/mode-world.jpg'),
+    pos: 'center 45%',
+    to: '/modes/world-map',
+  },
+  {
+    step: '04',
+    kicker: 'Competitive war',
+    title: 'Conquer',
+    text: 'Take your army into ladders, campaign regions, alliance pressure and real server rankings. Every system feeds the next fight.',
+    metric: 'Major fronts',
+    value: '4 modes',
+    img: asset('modes/mode-arena.jpg'),
+    pos: 'center center',
+    to: '/modes',
   },
 ]
 
 const DINOS = [
-  { name: 'Tyrannosaurus', img: asset('dino-tyranno.png'), role: 'Apex' },
-  { name: 'Velociraptor', img: asset('dino-raptor.png'), role: 'Speed' },
-  { name: 'Triceratops', img: asset('dino-triceratops.png'), role: 'Tank' },
-  { name: 'Dilophosaurus', img: asset('dino-dilo.png'), role: 'Control' },
-  { name: 'Stegosaurus', img: asset('dino-stego.png'), role: 'Defense' },
-  { name: 'Allosaurus', img: asset('dino-allo.png'), role: 'Hunter' },
-  { name: 'Pterodactyl', img: asset('dino-ptera.png'), role: 'Air' },
-  { name: 'Fire Dragon', img: asset('dino-dragon.png'), role: 'Special' },
+  {
+    name: 'Tyrannosaurus',
+    role: 'Apex breaker',
+    threat: 'Front-line pressure',
+    copy: 'The roster benchmark. When the formation has to break rather than bend, this is the silhouette you want moving forward.',
+    img: asset('dino-tyranno.png'),
+    accent: '#ff5a27',
+  },
+  {
+    name: 'Velociraptor',
+    role: 'Shock hunter',
+    threat: 'Tempo and speed',
+    copy: 'Fast, aggressive and built around momentum. Raptors turn a clean opening into pressure before the enemy can reset.',
+    img: asset('dino-raptor.png'),
+    accent: '#f0c14d',
+  },
+  {
+    name: 'Triceratops',
+    role: 'Bulwark',
+    threat: 'Formation control',
+    copy: 'A defensive anchor with the visual weight of a moving wall. It gives a march the feeling that the line is coming with you.',
+    img: asset('dino-triceratops.png'),
+    accent: '#38e8ff',
+  },
+  {
+    name: 'Dilophosaurus',
+    role: 'Control predator',
+    threat: 'Attrition and disruption',
+    copy: 'Less brute force, more battlefield control. Dilophosaurus is the kind of threat that changes how the opponent wants to stand.',
+    img: asset('dino-dilo.png'),
+    accent: '#3dffb5',
+  },
+  {
+    name: 'Stegosaurus',
+    role: 'Defense specialist',
+    threat: 'Staying power',
+    copy: 'Heavy, deliberate and difficult to ignore. A defensive creature for players who want their formation to survive the first impact.',
+    img: asset('dino-stego.png'),
+    accent: '#8ecb65',
+  },
+  {
+    name: 'Allosaurus',
+    role: 'Pursuit hunter',
+    threat: 'Target pressure',
+    copy: 'A predator built around the feeling of the chase. Allosaurus sits between pure speed and apex brutality.',
+    img: asset('dino-allo.png'),
+    accent: '#ff9f43',
+  },
+  {
+    name: 'Pterodactyl',
+    role: 'Air specialist',
+    threat: 'Reach and mobility',
+    copy: 'The battlefield looks different from above. Air units give the roster a second axis and make the world feel larger than the ground beneath it.',
+    img: asset('dino-ptera.png'),
+    accent: '#8bb8ff',
+  },
+  {
+    name: 'Fire Dragon',
+    role: 'Special threat',
+    threat: 'Area denial',
+    copy: 'A rare silhouette that is meant to feel like an event when it arrives. It turns a prehistoric roster into something players remember.',
+    img: asset('dino-dragon.png'),
+    accent: '#ff3b16',
+  },
+]
+
+const STRATEGY_LAYERS = [
+  {
+    index: '01 · Empire',
+    title: 'Your city is the engine',
+    text: 'Production, buildings, research and progression create the force you eventually put on the world map.',
+    img: asset('feature-base-hero.jpg'),
+    to: '/features/base',
+  },
+  {
+    index: '02 · Warfront',
+    title: 'The world keeps moving',
+    text: 'Marches, alliances, targets and territory make the shared map the place where preparation becomes consequence.',
+    img: asset('modes/mode-world.jpg'),
+    to: '/modes/world-map',
+  },
+  {
+    index: '03 · Campaign',
+    title: 'Nine regions to break',
+    text: 'A 78-stage solo campaign gives the army a second proving ground away from the live world.',
+    img: asset('feature-campaign-hero.jpg'),
+    to: '/modes/campaign',
+  },
 ]
 
 export default function HomePage() {
   const motionRef = usePageMotion()
+  const [activeModeKey, setActiveModeKey] = useState(MODES[2]?.key ?? MODES[0]!.key)
+  const [activeDinoName, setActiveDinoName] = useState(DINOS[0]!.name)
+
+  const activeMode = MODES.find((mode) => mode.key === activeModeKey) ?? MODES[0]!
+  const activeModeIndex = Math.max(0, MODES.findIndex((mode) => mode.key === activeMode.key))
+  const activeDino = DINOS.find((dino) => dino.name === activeDinoName) ?? DINOS[0]!
+  const activeDinoIndex = Math.max(0, DINOS.findIndex((dino) => dino.name === activeDino.name))
 
   return (
-    <div ref={motionRef} className="relative">
-      {/* ═══ HERO: title centered higher ═══ */}
-      <section className="relative min-h-[100svh] overflow-hidden">
+    <div ref={motionRef} className="home-v2">
+      {/* ═══ CINEMATIC HERO ═══ */}
+      <section className="home-hero-v2" aria-labelledby="home-title">
         <img
           data-hero-bg
           src={asset('hero-poster.png')}
-          alt="Dino Warfront landscape with apex T-rex"
-          className="absolute inset-0 w-full h-full object-cover will-change-transform hero-video-live"
-          style={{ objectPosition: 'center center' }}
+          alt="Dino Warfront prehistoric battlefield"
+          className="home-hero-v2__bg"
+          fetchPriority="high"
+          decoding="async"
           draggable={false}
         />
+        <div className="home-hero-v2__shade" aria-hidden />
+        <div className="home-hero-v2__heat" aria-hidden />
+        <div className="home-hero-v2__grid" aria-hidden />
 
-        {/* Light top scrim for title only — bottom stays open for the T-rex */}
-        <div
-          className="absolute inset-0 z-[1] pointer-events-none"
-          style={{
-            background: `
-              linear-gradient(to bottom, rgba(5,4,10,0.72) 0%, rgba(5,4,10,0.35) 28%, transparent 48%),
-              linear-gradient(to top, rgba(5,4,10,0.88) 0%, transparent 32%)
-            `,
-          }}
-        />
-
-        {/* Title + CTAs higher so buttons don't sit on dinos */}
-        <div className="absolute z-10 left-0 right-0 top-[18%] sm:top-[17%] md:top-[16%] container-dd flex flex-col items-center text-center">
-          <p data-hero data-hero-delay="0.05" className="eyebrow mb-2 sm:mb-3 justify-center">
-            Friend beta · Prehistoric strategy
-          </p>
-
-          <h1
-            data-hero
-            data-hero-delay="0.12"
-            className="display-xl text-white title-glow drop-shadow-[0_4px_40px_rgba(0,0,0,0.65)] !text-[clamp(2.75rem,9vw,6.5rem)]"
-          >
-            DINO
-            <br />
-            <span className="text-gradient-magma">WARFRONT</span>
-          </h1>
-
-          <div
-            data-hero
-            data-hero-delay="0.35"
-            className="flex flex-wrap gap-3 mt-4 sm:mt-5 justify-center"
-          >
-            <Link
-              to="/download"
-              className="btn-primary no-underline !text-[0.9rem] !px-8 !py-4"
-            >
-              Play free
-            </Link>
-            <Link to="/modes" className="btn-secondary no-underline">
-              Game modes
-            </Link>
-            <Link to="/features/dinos" className="btn-secondary no-underline">
-              Meet the pack
-            </Link>
-          </div>
-        </div>
-
-        <div
-          data-hero
-          data-hero-delay="0.55"
-          className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 pointer-events-none"
-        >
-          <span className="font-ui text-[9px] tracking-[0.35em] uppercase text-white/35">
-            Scroll
-          </span>
-          <span className="scroll-cue-line" />
-        </div>
-      </section>
-
-      {/* ═══ LIVE SERVER STRIP ═══ */}
-      <WarRoom />
-
-      {/* ═══ STORY + APEX BEAST ═══ */}
-      <section className="section-band relative overflow-hidden">
-        <div
-          className="absolute inset-0 opacity-40 pointer-events-none"
-          style={{
-            background:
-              'radial-gradient(ellipse 60% 80% at 80% 50%, rgba(255,77,26,0.18), transparent 60%), radial-gradient(ellipse 50% 70% at 15% 40%, rgba(79,143,99,0.14), transparent 55%)',
-          }}
-        />
-        <div className="container-dd relative grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-          <div data-reveal="left">
-            <div className="sec-ornament mb-4 max-w-[220px]">
-              <span>The hunt</span>
+        <div className="container-dd home-hero-v2__content">
+          <div className="home-hero-v2__copy">
+            <div data-hero data-hero-delay="0.03" className="home-hero-v2__status">
+              <span className="home-hero-v2__status-dot" aria-hidden />
+              Friend beta · live strategy build
             </div>
-            <p className="eyebrow">Chapter fragment · I</p>
-            <h2 className="display-lg text-white mt-4">
-              Only the
-              <br />
-              <span className="text-gradient-magma">apex</span> survive
-            </h2>
-            <p className="body-lg mt-6 max-w-xl">
-              Jungles hide riches. Volcanoes hide death. Rival clans move —
-              and the pack that answers first claims the map.
+
+            <h1 id="home-title" data-hero data-hero-delay="0.10" className="home-hero-v2__title">
+              <span className="home-hero-v2__title-line">Dino</span>
+              <span className="home-hero-v2__title-line home-hero-v2__title-line--accent">
+                Warfront
+              </span>
+            </h1>
+
+            <p data-hero data-hero-delay="0.20" className="home-hero-v2__tagline">
+              Build your empire. Command the prehistoric world.
             </p>
-            <p className="body-lg mt-4 max-w-xl text-[var(--gold)]/90">
-              Advance the story. Open the systems. Download the beta.
-              The whole picture is earned — not handed out on the first screen.
+            <p data-hero data-hero-delay="0.26" className="home-hero-v2__body">
+              A survival strategy game where city building, heroes, dinosaurs, alliances and
+              persistent world warfare all feed the same army.
             </p>
-            <div className="flex flex-wrap gap-3 mt-9">
-              <Link to="/story" className="btn-primary no-underline">
-                Next fragment
+
+            <div data-hero data-hero-delay="0.32" className="home-hero-v2__actions">
+              <Link to="/download" className="btn-primary no-underline !px-8 !py-4">
+                Play the beta
               </Link>
-              <Link to="/features/dinos" className="btn-secondary no-underline">
-                Pack intel
+              <Link to="/modes" className="btn-secondary no-underline">
+                Explore warfronts
               </Link>
+            </div>
+
+            <div data-hero data-hero-delay="0.40" className="home-hero-v2__micro" aria-label="Game highlights">
+              <span>Shared world</span>
+              <span>Hero squads</span>
+              <span>Dinosaur roster</span>
+              <span>Alliance warfare</span>
             </div>
           </div>
 
-          <div data-reveal="right" className="relative">
-            <div className="relative mx-auto max-w-lg">
-              <div
-                className="absolute -inset-10 rounded-full opacity-70 blur-3xl animate-pulse-glow"
-                style={{
-                  background:
-                    'radial-gradient(circle, rgba(255,77,26,0.45), rgba(79,143,99,0.2), transparent 70%)',
-                }}
-              />
-              <div className="media-frame relative aspect-[4/5] overflow-hidden group dino-card-pulse bg-[#0a0810]">
-                <div className="absolute inset-0 flex items-center justify-center p-4 pb-20">
-                  <img
-                    src={asset('dino-tyranno.png')}
-                    alt="Tyrannosaurus"
-                    className="dino-fit w-full h-full transition-transform duration-700 group-hover:scale-105"
-                  />
-                </div>
-                <div className="absolute top-4 left-4 font-ui text-[10px] tracking-[0.25em] uppercase text-[var(--gold)] px-2 py-1 border border-[var(--gold)]/30 bg-black/40 z-10">
-                  Apex · Live
-                </div>
-                <div className="absolute bottom-0 inset-x-0 p-6 z-10 bg-gradient-to-t from-[#0a0810] via-[#0a0810]/90 to-transparent pt-16">
-                  <p className="font-ui text-[10px] tracking-[0.28em] uppercase text-[var(--gold)]">
-                    Apex attacker
-                  </p>
-                  <p className="font-display text-3xl text-white mt-1 tracking-wide">
-                    TYRANNOSAURUS
-                  </p>
-                </div>
+          <aside data-hero data-hero-delay="0.24" className="home-command-card" aria-label="Tactical overview">
+            <div className="home-command-card__top">
+              <span className="home-command-card__eyebrow">Command uplink</span>
+              <span className="home-command-card__coords">Sector 08 · Online</span>
+            </div>
+            <div className="home-command-card__radar" aria-hidden>
+              <span className="home-command-card__radar-center" />
+            </div>
+            <div className="home-command-card__stats">
+              <div className="home-command-card__stat">
+                <strong>8000 × 8000</strong>
+                <span>Persistent world</span>
               </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ═══ MARQUEE PACK ═══ */}
-      <div className="dino-marquee-wrap relative py-4 border-y border-[var(--gold)]/10 overflow-hidden" aria-hidden>
-        <div className="dino-marquee">
-          {[...DINOS, ...DINOS].map((d, i) => (
-            <span key={d.name + i} className="dino-marquee-item">
-              <img src={d.img} alt="" />
-              <span>{d.name}</span>
-            </span>
-          ))}
-        </div>
-      </div>
-
-      {/* ═══ MAJOR MODES ═══ */}
-      <section className="section-band relative overflow-hidden">
-        <div
-          className="absolute inset-0 pointer-events-none opacity-60"
-          style={{
-            background:
-              'radial-gradient(ellipse 60% 50% at 20% 0%, rgba(56,232,255,0.10), transparent 60%), radial-gradient(ellipse 55% 45% at 85% 90%, rgba(255,77,26,0.12), transparent 58%)',
-          }}
-        />
-        <div className="container-dd relative">
-          <div
-            className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10 md:mb-12"
-            data-reveal="up"
-          >
-            <div className="max-w-xl">
-              <div className="sec-ornament mb-4 max-w-[240px]">
+              <div className="home-command-card__stat">
+                <strong>78</strong>
+                <span>Campaign stages</span>
+              </div>
+              <div className="home-command-card__stat">
+                <strong>4</strong>
                 <span>Major modes</span>
               </div>
-              <h2 className="display-lg text-white">
-                Four ways
-                <br />
-                <span className="text-gradient-magma">to fight</span>
-              </h2>
+              <div className="home-command-card__stat">
+                <strong>12 + daily</strong>
+                <span>Defense maps</span>
+              </div>
             </div>
-            <p className="body-lg max-w-sm md:text-right">
-              A real-time defense, two competitive ladders, a shared world that never
-              stops, and a 78-stage campaign. One army has to cover all four.
+          </aside>
+        </div>
+
+        <div className="home-hero-v2__bottom" aria-label="Dino Warfront scope">
+          <div className="container-dd home-hero-v2__bottom-inner">
+            <div className="home-hero-v2__metric"><strong>Build</strong><span>Your city</span></div>
+            <div className="home-hero-v2__metric"><strong>Tame</strong><span>Your roster</span></div>
+            <div className="home-hero-v2__metric"><strong>March</strong><span>Your army</span></div>
+            <div className="home-hero-v2__metric"><strong>Conquer</strong><span>Your world</span></div>
+          </div>
+        </div>
+      </section>
+
+      {/* Real server telemetry stays directly under the hero. */}
+      <WarRoom />
+
+      {/* ═══ THE CORE LOOP ═══ */}
+      <section id="war-loop" className="home-section home-loop">
+        <div className="container-dd">
+          <div className="home-section-head" data-reveal="up">
+            <span className="home-section-head__kicker">The strategy loop</span>
+            <h2 className="home-section-head__title">
+              Every decision feeds
+              <br />
+              <span className="text-gradient-magma">the next war</span>
+            </h2>
+            <p className="home-section-head__copy">
+              The homepage now tells the game in the same order a commander feels it:
+              build the engine, tame the roster, send the march, then fight for position.
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4" data-reveal-stagger>
-            {MODES.map((m, i) => (
-              <Link
-                key={m.key}
-                to={m.to}
-                className="mode-tile no-underline text-inherit"
-                data-reveal-item
-                style={{
-                  ['--tile-accent' as string]: m.accent,
-                  ['--tile-soft' as string]: m.accentSoft,
-                  minHeight: '20rem',
-                }}
-              >
+          <div className="home-loop__grid" data-reveal-stagger>
+            {WAR_LOOP.map((item) => (
+              <Link key={item.step} to={item.to} className="home-loop-card" data-reveal-item>
                 <img
-                  src={m.img}
+                  src={item.img}
                   alt=""
-                  className="mode-tile__img"
-                  style={{ objectPosition: m.pos }}
+                  className="home-loop-card__image"
+                  style={{ objectPosition: item.pos }}
                   loading="lazy"
+                  decoding="async"
                 />
-                <div className="mode-tile__scrim" />
-                <div className="mode-tile__body">
-                  <span className="mode-tile__index">{String(i + 1).padStart(2, '0')}</span>
-                  <p className="mode-tile__tag">{m.short}</p>
-                  <h3 className="font-display text-2xl text-white uppercase tracking-wide mt-1.5 leading-none">
-                    {m.name}
-                  </h3>
-                  <p className="font-body text-sm text-[var(--bone-dim)] mt-2.5 leading-relaxed">
-                    {m.tagline}
-                  </p>
-                  <div className="mode-tile__chips">
-                    {m.specs.slice(0, 2).map((s) => (
-                      <span key={s.label} className="mode-tile__chip">
-                        {s.value}
-                      </span>
-                    ))}
+                <div className="home-loop-card__shade" aria-hidden />
+                <div className="home-loop-card__index"><span>{item.step}</span></div>
+                <div className="home-loop-card__body">
+                  <p className="home-loop-card__kicker">{item.kicker}</p>
+                  <h3 className="home-loop-card__title">{item.title}</h3>
+                  <p className="home-loop-card__copy">{item.text}</p>
+                  <div className="home-loop-card__metric">
+                    <span>{item.metric}</span>
+                    <strong>{item.value}</strong>
                   </div>
                 </div>
               </Link>
             ))}
           </div>
-
-          <div className="mt-9 flex flex-wrap gap-3" data-reveal="up">
-            <Link to="/modes" className="btn-secondary no-underline">
-              Compare all four modes
-            </Link>
-          </div>
         </div>
       </section>
 
-      {/* ═══ FEATURES ═══ */}
+      {/* ═══ INTERACTIVE MODE THEATRE ═══ */}
       <section
-        className="section-band relative"
-        style={{
-          background:
-            'linear-gradient(180deg, rgba(18,12,32,0.55) 0%, rgba(8,6,16,0.35) 100%)',
-        }}
+        id="warfronts"
+        className="home-modes-stage"
+        style={{ ['--mode-live' as string]: activeMode.accent }}
+        aria-labelledby="warfront-title"
       >
-        <div className="container-dd">
-          <div
-            className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12"
-            data-reveal="up"
-          >
-            <div className="max-w-xl">
-              <div className="sec-ornament mb-4 max-w-[220px]">
-                <span>Systems</span>
-              </div>
-              <h2 className="display-lg text-white">
-                Built for
-                <br />
-                <span className="text-gradient-gold">domination</span>
-              </h2>
-            </div>
-            <p className="body-lg max-w-sm md:text-right">
-              Four doors. Each opens a deeper layer. Tap a card — the homepage
-              only shows the bait.
+        <div className="home-modes-stage__media" aria-hidden>
+          <img
+            key={activeMode.key}
+            src={activeMode.img}
+            alt=""
+            className="home-modes-stage__image"
+            style={{ objectPosition: activeMode.pos }}
+            loading="lazy"
+            decoding="async"
+          />
+          <div className="home-modes-stage__scrim" />
+          <div className="home-modes-stage__accent" />
+        </div>
+
+        <div className="container-dd home-modes-stage__inner">
+          <div className="home-mode-copy" data-reveal="left">
+            <p className="home-mode-copy__count">
+              Warfront {String(activeModeIndex + 1).padStart(2, '0')} · {activeMode.kicker}
             </p>
+            <h2 id="warfront-title" className="home-mode-copy__name">{activeMode.name}</h2>
+            <p className="home-mode-copy__tagline">{activeMode.tagline}</p>
+            <p className="home-mode-copy__body">{activeMode.blurb}</p>
+
+            <div className="home-mode-copy__specs">
+              {activeMode.specs.map((spec) => (
+                <div key={spec.label} className="home-mode-copy__spec">
+                  <strong>{spec.value}</strong>
+                  <span>{spec.label}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Link to={activeMode.to} className="btn-primary no-underline">
+                Enter this mode
+              </Link>
+              <Link to="/modes" className="btn-secondary no-underline">
+                Compare all modes
+              </Link>
+            </div>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4" data-reveal-stagger>
-            {PILLARS.map((f, i) => {
-              const className = `dd-card group no-underline text-inherit ${i === 0 ? 'sm:col-span-2 lg:col-span-2' : ''}`
-              const body = (
-                <>
-                  <div
-                    className="relative overflow-hidden bg-[#0a0810]"
-                    style={{ aspectRatio: i === 0 ? '16 / 9' : '16 / 11' }}
-                  >
-                    <img
-                      src={f.img}
-                      alt={f.title}
-                      className="absolute inset-0 w-full h-full transition-transform duration-700 group-hover:scale-[1.06]"
-                      style={{ objectFit: 'cover', objectPosition: f.pos }}
-                      loading="lazy"
-                    />
-                    <div
-                      className="absolute inset-0 opacity-60"
-                      style={{
-                        background:
-                          'linear-gradient(to top, rgba(5,4,10,0.9) 0%, transparent 55%)',
-                      }}
-                    />
-                    <span className="absolute top-3 right-3 font-ui text-[9px] tracking-[0.18em] uppercase px-2.5 py-1 rounded-sm bg-black/50 border border-[var(--gold)]/30 text-[var(--gold)]">
-                      Open
-                    </span>
-                  </div>
-                  <div className="px-5 py-5">
-                    <h3 className="font-display text-xl text-white tracking-wide uppercase">
-                      {f.title}
-                    </h3>
-                    <p className="font-body text-sm text-[var(--bone-dim)] mt-2 leading-relaxed">
-                      {f.text}
-                    </p>
-                    <p className="font-body text-xs text-[var(--gold)]/80 mt-2 italic leading-relaxed">
-                      {f.hook}
-                    </p>
-                    <p className="font-ui text-[10px] tracking-[0.18em] uppercase text-[var(--gold)] mt-3">
-                      Open this layer →
-                    </p>
-                  </div>
-                </>
-              )
+          <div className="home-mode-nav" role="tablist" aria-label="Select a Dino Warfront game mode" data-reveal="right">
+            {MODES.map((mode, index) => {
+              const active = mode.key === activeMode.key
               return (
-                <Link key={f.title} to={f.to} data-reveal-item className={className}>
-                  {body}
-                </Link>
+                <button
+                  key={mode.key}
+                  type="button"
+                  role="tab"
+                  aria-selected={active}
+                  data-active={active ? 'true' : undefined}
+                  className="home-mode-nav__item"
+                  onPointerEnter={() => setActiveModeKey(mode.key)}
+                  onFocus={() => setActiveModeKey(mode.key)}
+                  onClick={() => setActiveModeKey(mode.key)}
+                >
+                  <span className="home-mode-nav__num">{String(index + 1).padStart(2, '0')}</span>
+                  <span className="home-mode-nav__name">{mode.short}</span>
+                  <span className="home-mode-nav__arrow" aria-hidden>→</span>
+                </button>
               )
             })}
           </div>
         </div>
       </section>
 
-      {/* ═══ LIVE LEADERBOARD ═══ */}
-      <TopCommanders />
-
-      {/* ═══ DINO RAIL ═══ */}
-      <section className="section-band">
-        <div className="container-dd">
-          <div className="flex items-end justify-between gap-4 mb-6" data-reveal="up">
-            <div>
-              <div className="sec-ornament mb-3 max-w-[200px]">
-                <span>Bestiary</span>
+      {/* ═══ NYRA COMMANDER SPOTLIGHT ═══ */}
+      <section id="nyra" className="home-section home-nyra">
+        <div className="container-dd home-nyra__grid">
+          <div className="home-nyra__visual" data-reveal="left">
+            <img
+              src={asset('spotlight-nyra.jpg')}
+              alt="Nyra Vale, Dino Warfront commander"
+              loading="lazy"
+              decoding="async"
+            />
+            <div className="home-nyra__plate">
+              <div>
+                <p className="home-nyra__plate-role">Field commander · Hero spotlight</p>
+                <p className="home-nyra__plate-title">Nyra Vale</p>
               </div>
-              <h2 className="display-md text-white">
-                Apex <span className="text-gradient-magma">roster</span>
-              </h2>
-              <p className="body-lg mt-3 max-w-md">
-                Surface names only. Full roles unlock when you advance.
-              </p>
-            </div>
-            <Link
-              to="/features/dinos"
-              className="font-ui text-[11px] tracking-[0.2em] uppercase text-[var(--gold)] no-underline hover:text-[var(--magma-glow)] shrink-0"
-            >
-              Unlock intel →
-            </Link>
-          </div>
-          <div className="char-rail" data-reveal-stagger>
-            {DINOS.map((d) => (
-              <Link
-                key={d.name}
-                to="/features/dinos"
-                className="char-rail-item dd-card group no-underline text-inherit"
-                data-reveal-item
-              >
-                <div className="aspect-[3/4] relative bg-[#0a0810] flex flex-col">
-                  <div className="flex-1 flex items-center justify-center p-2 min-h-0">
-                    <img
-                      src={d.img}
-                      alt={d.name}
-                      className="dino-fit w-full h-full max-h-[75%] transition-transform duration-500 group-hover:scale-105"
-                      loading="lazy"
-                    />
-                  </div>
-                  <div className="relative z-10 p-3 pt-0">
-                    <p className="font-ui text-[9px] tracking-[0.2em] uppercase text-[var(--gold)]">
-                      {d.role}
-                    </p>
-                    <p className="font-display text-sm text-white uppercase tracking-wide mt-0.5">
-                      {d.name}
-                    </p>
-                  </div>
-                </div>
+              <Link to="/features/heroes" className="btn-secondary no-underline !py-2.5 !px-4">
+                Open roster
               </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ═══ PLAY / REWARDS ═══ */}
-      <section className="section-band relative overflow-hidden">
-        <div
-          className="absolute inset-0 opacity-25 pointer-events-none"
-          data-parallax="0.08"
-          style={{
-            backgroundImage: `url(${asset('banner-bg.png')})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            filter: 'brightness(0.45) saturate(1.1)',
-          }}
-        />
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background:
-              'linear-gradient(90deg, rgba(5,4,10,0.95) 0%, rgba(5,4,10,0.7) 50%, rgba(5,4,10,0.92) 100%)',
-          }}
-        />
-
-        <div className="container-dd relative z-10 grid md:grid-cols-2 gap-10 items-center">
-          <div data-reveal="left">
-            <div className="sec-ornament mb-4 max-w-[200px]">
-              <span>Rewards</span>
             </div>
-            <h2 className="display-lg text-white mt-2">
-              Daily login
+          </div>
+
+          <div className="home-nyra__copy" data-reveal="right">
+            <span className="home-section-head__kicker">Command has a face</span>
+            <h2>
+              Lead from
               <br />
-              <span className="text-gradient-gold">& roulette</span>
+              <span className="text-gradient-gold">the front</span>
             </h2>
-            <p className="body-lg mt-5 max-w-md">
-              Streaks and spins — the first edge you can claim without the full
-              campaign. Log in; the inventory feels it when you open the app.
+            <p>
+              Dino Warfront is not just a city seen from above. Heroes give the army a
+              human identity, while the prehistoric roster gives every formation its silhouette.
+              Nyra is the first commander you should recognize before the battlefield fills up.
             </p>
-            <div className="flex flex-wrap gap-3 mt-8">
-              <Link to="/play" className="btn-primary no-underline">
-                Claim the edge
+
+            <div className="home-nyra__doctrine" aria-label="Hero system pillars">
+              <div><strong>Command</strong><span>Build a squad</span></div>
+              <div><strong>Synergy</strong><span>Pair roles</span></div>
+              <div><strong>Progress</strong><span>Grow the roster</span></div>
+            </div>
+
+            <div className="mt-7 flex flex-wrap gap-3">
+              <Link to="/features/heroes" className="btn-primary no-underline">
+                Meet the heroes
               </Link>
-              <Link to="/play?login=1" className="btn-secondary no-underline">
-                Log in
+              <Link to="/story" className="btn-secondary no-underline">
+                Enter the story
               </Link>
             </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3" data-reveal-stagger>
-            {[
-              { t: 'Daily streak', d: 'Better speed-ups the longer you claim' },
-              { t: 'Free spin', d: '1 roulette spin every 24 hours' },
-              { t: 'Account ID', d: 'No password — ID from game Settings' },
-              { t: 'In-game sync', d: 'Open the app to collect rewards' },
-            ].map((x) => (
-              <div key={x.t} className="dd-panel p-5" data-reveal-item>
-                <p className="font-display text-lg text-[var(--gold)] uppercase tracking-wide">
-                  {x.t}
-                </p>
-                <p className="font-body text-sm text-[var(--bone-dim)] mt-2 leading-relaxed">
-                  {x.d}
-                </p>
-              </div>
-            ))}
           </div>
         </div>
       </section>
 
-      {/* ═══ PROGRESS ═══ */}
-      <section className="section-band">
+      {/* ═══ INTERACTIVE APEX DOSSIER ═══ */}
+      <section id="apex" className="home-section home-apex">
         <div className="container-dd">
+          <div className="home-section-head home-section-head--center" data-reveal="up">
+            <span className="home-section-head__kicker">Apex dossier</span>
+            <h2 className="home-section-head__title">
+              Your army should look
+              <br />
+              <span className="text-gradient-magma">prehistoric</span>
+            </h2>
+            <p className="home-section-head__copy">
+              Pick a creature and inspect the roster without loading every giant character image at once.
+              The page only pulls the active specimen until you ask for another one.
+            </p>
+          </div>
+
           <div
-            className="dd-panel p-6 md:p-10 grid md:grid-cols-2 gap-8 items-center relative overflow-hidden"
+            className="home-apex__grid"
+            style={{ ['--apex-accent' as string]: activeDino.accent }}
             data-reveal="up"
           >
-            <div
-              className="absolute -right-20 -top-20 w-64 h-64 rounded-full opacity-40 blur-3xl pointer-events-none"
-              style={{
-                background: 'radial-gradient(circle, rgba(123,92,255,0.4), transparent 70%)',
-              }}
-            />
-            <div className="relative">
-              <div className="sec-ornament mb-4 max-w-[200px]">
-                <span>Studio</span>
-              </div>
-              <h2 className="display-md text-white mt-2">
-                Progress
-                <span className="text-gradient-magma"> log</span>
-              </h2>
-              <p className="body-lg mt-4">
-                Screenshots and roadmap pieces land here first. Advance the log
-                to see what is shipping next.
-              </p>
-              <Link to="/progress" className="btn-primary no-underline mt-8 inline-flex">
-                See what is next
-              </Link>
+            <div className="home-apex__selector" role="tablist" aria-label="Select a dinosaur">
+              {DINOS.map((dino, index) => {
+                const active = dino.name === activeDino.name
+                return (
+                  <button
+                    key={dino.name}
+                    type="button"
+                    role="tab"
+                    aria-selected={active}
+                    data-active={active ? 'true' : undefined}
+                    className="home-apex__button"
+                    onPointerEnter={() => setActiveDinoName(dino.name)}
+                    onFocus={() => setActiveDinoName(dino.name)}
+                    onClick={() => setActiveDinoName(dino.name)}
+                  >
+                    <span className="home-apex__button-index">{String(index + 1).padStart(2, '0')}</span>
+                    <span className="home-apex__button-name">{dino.name}</span>
+                  </button>
+                )
+              })}
             </div>
-            <div className="grid grid-cols-2 gap-3 relative">
-              {[
-                { t: 'Screenshots', d: 'Real Unity printscreens' },
-                { t: 'Shipped', d: 'What friends can use now' },
-                { t: 'In progress', d: 'Active development work' },
-                { t: 'Roadmap', d: 'Nyra story quests & more' },
-              ].map((x) => (
-                <div key={x.t} className="stat-chip">
-                  <p className="font-display text-lg text-[var(--gold)] uppercase">{x.t}</p>
-                  <p className="font-body text-xs text-[var(--bone-dim)] mt-1">{x.d}</p>
+
+            <div className="home-apex__stage">
+              <div className="home-apex__stage-grid" aria-hidden />
+              <div className="home-apex__number" aria-hidden>{String(activeDinoIndex + 1).padStart(2, '0')}</div>
+
+              <div className="home-apex__dossier">
+                <p className="home-apex__dossier-label">Specimen {String(activeDinoIndex + 1).padStart(2, '0')}</p>
+                <h3>{activeDino.name}</h3>
+                <p className="home-apex__dossier-role">{activeDino.role}</p>
+                <p className="home-apex__dossier-copy">{activeDino.copy}</p>
+                <div className="home-apex__threat">
+                  <span>Battlefield identity</span>
+                  <strong>{activeDino.threat}</strong>
                 </div>
-              ))}
+              </div>
+
+              <div className="home-apex__creature">
+                <img
+                  key={activeDino.name}
+                  src={activeDino.img}
+                  alt={activeDino.name}
+                  loading="lazy"
+                  decoding="async"
+                  draggable={false}
+                />
+              </div>
+
+              <div className="home-apex__stage-footer">
+                <span>Interactive bestiary preview · switch specimen above</span>
+                <Link to="/features/dinos" className="btn-secondary no-underline !py-2.5 !px-4">
+                  Full dino intel
+                </Link>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ═══ DOWNLOAD CTA ═══ */}
-      <section className="section-band pb-28">
+      {/* Real players remain the strongest proof that the build is alive. */}
+      <TopCommanders />
+
+      {/* ═══ STRATEGY LAYERS ═══ */}
+      <section className="home-section home-section--tight">
         <div className="container-dd">
-          <div
-            data-reveal="scale"
-            className="relative overflow-hidden rounded-sm border border-[var(--gold)]/25 px-6 py-14 md:px-16 md:py-20"
-            style={{
-              background:
-                'linear-gradient(125deg, rgba(255,77,26,0.16) 0%, rgba(18,12,32,0.92) 35%, rgba(8,6,16,0.96) 100%)',
-              boxShadow:
-                '0 40px 120px rgba(0,0,0,0.5), 0 0 100px rgba(255,77,26,0.12), 0 0 80px rgba(123,92,255,0.1)',
-            }}
-          >
-            <div
-              className="absolute -right-16 -top-16 w-80 h-80 rounded-full opacity-50 blur-3xl pointer-events-none animate-pulse-glow"
-              style={{
-                background:
-                  'radial-gradient(circle, rgba(255,77,26,0.55), rgba(123,92,255,0.25), transparent 70%)',
-              }}
-            />
-            <div className="relative z-10 max-w-2xl">
-              <div className="sec-ornament mb-4 max-w-[240px]">
-                <span>Enter the wild</span>
-              </div>
-              <h2 className="display-lg text-white mt-2">
-                Download &
-                <br />
-                <span className="text-gradient-magma">command</span>
-              </h2>
-              <p className="body-lg mt-5">
-                The website is the map sketch. The APK is the territory —
-                base, battles, dinos, campaign. Friend beta · ~2.6 GB · Wi‑Fi recommended.
-              </p>
-              <div className="flex flex-wrap gap-3 mt-10">
-                <Link to="/download" className="btn-primary no-underline !text-[0.9rem] !px-8 !py-4">
-                  Download APK
-                </Link>
-                <Link to="/features" className="btn-secondary no-underline">
-                  Still exploring?
-                </Link>
-              </div>
+          <div className="home-section-head" data-reveal="up">
+            <span className="home-section-head__kicker">One empire, several layers</span>
+            <h2 className="home-section-head__title">
+              From the city gate
+              <br />
+              <span className="text-gradient-gold">to the center of the map</span>
+            </h2>
+          </div>
+
+          <div className="home-layers__grid" data-reveal-stagger>
+            {STRATEGY_LAYERS.map((layer) => (
+              <Link key={layer.index} to={layer.to} className="home-layer-card" data-reveal-item>
+                <img src={layer.img} alt="" loading="lazy" decoding="async" />
+                <div className="home-layer-card__body">
+                  <p className="home-layer-card__index">{layer.index}</p>
+                  <h3>{layer.title}</h3>
+                  <p>{layer.text}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ FINAL CTA ═══ */}
+      <section className="home-final">
+        <img
+          src={asset('hero-dino-volcano.jpg')}
+          alt=""
+          className="home-final__bg"
+          loading="lazy"
+          decoding="async"
+        />
+        <div className="home-final__shade" aria-hidden />
+        <div className="container-dd">
+          <div className="home-final__body" data-reveal="up">
+            <span className="home-section-head__kicker">The gate is open</span>
+            <h2 className="home-final__title">
+              Build the empire.
+              <br />
+              <span className="text-gradient-magma">Take the warfront.</span>
+            </h2>
+            <p className="home-final__copy">
+              The website is the command briefing. The beta is where the city, heroes,
+              dinosaurs, campaign and shared world actually meet.
+            </p>
+            <div className="home-final__actions">
+              <Link to="/download" className="btn-primary no-underline !px-8 !py-4">
+                Download the beta
+              </Link>
+              <Link to="/progress" className="btn-secondary no-underline">
+                See development progress
+              </Link>
             </div>
           </div>
         </div>
