@@ -3,7 +3,7 @@ import {
   onAuthStateChanged,
   type User,
 } from 'firebase/auth'
-import { doc, getDoc, collection, query, where, limit, getDocs } from 'firebase/firestore'
+import { doc, getDoc } from 'firebase/firestore'
 import { getFirebase } from '@/lib/firebase'
 import {
   isValidAccountId,
@@ -76,9 +76,12 @@ function pickPower(data: Record<string, unknown> | undefined): number | undefine
 }
 
 /**
- * Log in with game Account ID only (Firebase User ID).
- * No password. Commander name is read from players/{accountId}.displayName
- * (same field the Unity game syncs via FriendService).
+ * Log in with the game's Account ID (Firebase User ID).
+ *
+ * Account ID login is intentionally a single direct document lookup. The old
+ * display-name fallback issued a second collection query after every mistyped
+ * or unknown ID even though the form only accepts Account IDs. Removing that
+ * fallback keeps failed logins to one Firestore document read at most.
  */
 export async function loginWithAccountId(
   rawAccountId: string
@@ -94,49 +97,25 @@ export async function loginWithAccountId(
   try {
     await ensureAnonymousAuth()
     const { db } = getFirebase()
+    const snap = await getDoc(doc(db, PLAYERS_COLLECTION, accountId))
 
-    // Primary: document id = Firebase User ID from the game
-    const ref = doc(db, PLAYERS_COLLECTION, accountId)
-    const snap = await getDoc(ref)
-
-    if (snap.exists()) {
-      const data = snap.data() as Record<string, unknown>
-      const session: AuthSession = {
-        accountId,
-        displayName: pickDisplayName(data),
-        loggedInAt: new Date().toISOString(),
-        firebaseUid: accountId,
-        source: 'firebase',
-        powerScore: pickPower(data),
+    if (!snap.exists()) {
+      return {
+        ok: false,
+        error: 'Account not found. Check your Account ID from the game.',
       }
-      return { ok: true, session }
     }
 
-    // Fallback: some tools paste displayName instead of ID — resolve like FriendService
-    const byName = query(
-      collection(db, PLAYERS_COLLECTION),
-      where('displayName', '==', accountId),
-      limit(1)
-    )
-    const nameSnap = await getDocs(byName)
-    if (!nameSnap.empty) {
-      const hit = nameSnap.docs[0]!
-      const data = hit.data() as Record<string, unknown>
-      const session: AuthSession = {
-        accountId: hit.id,
-        displayName: pickDisplayName(data),
-        loggedInAt: new Date().toISOString(),
-        firebaseUid: hit.id,
-        source: 'firebase',
-        powerScore: pickPower(data),
-      }
-      return { ok: true, session }
+    const data = snap.data() as Record<string, unknown>
+    const session: AuthSession = {
+      accountId,
+      displayName: pickDisplayName(data),
+      loggedInAt: new Date().toISOString(),
+      firebaseUid: accountId,
+      source: 'firebase',
+      powerScore: pickPower(data),
     }
-
-    return {
-      ok: false,
-      error: 'Account not found. Check your Account ID from the game.',
-    }
+    return { ok: true, session }
   } catch (err) {
     return { ok: false, error: friendlyError(err) }
   }
