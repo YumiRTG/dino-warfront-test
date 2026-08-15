@@ -1,50 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router'
 import { asset } from '@/lib/assets'
+import { BASIC_HEROES } from '@/lib/heroes'
+import { BASIC_DINOS } from '@/lib/dinos'
 import '../pages/HomeTransitionsLab.css'
-
-const SHOWCASE = [
-  {
-    key: 'base',
-    label: 'BUILD',
-    title: 'BASE NEVER SLEEPS',
-    stat: '+18K OFFLINE',
-    img: asset('feature-base-hero.jpg'),
-    pos: 'center 42%',
-    accent: '#f0c14d',
-    to: '/features/base',
-  },
-  {
-    key: 'dinos',
-    label: 'TAME',
-    title: 'UNLEASH THE PACK',
-    stat: 'APEX READY',
-    img: asset('feature-dinos-hero.jpg'),
-    pos: 'center 48%',
-    accent: '#ff4d1a',
-    to: '/features/dinos',
-  },
-  {
-    key: 'heroes',
-    label: 'COMMAND',
-    title: 'BUILD YOUR META',
-    stat: 'POWER +18.6%',
-    img: asset('feature-heroes-hero.jpg'),
-    pos: 'center center',
-    accent: '#38e8ff',
-    to: '/features/heroes',
-  },
-  {
-    key: 'war',
-    label: 'CONQUER',
-    title: 'OWN THE WARFRONT',
-    stat: 'WORLD ACTIVE',
-    img: asset('modes/mode-world.jpg'),
-    pos: 'center 46%',
-    accent: '#ff6b3d',
-    to: '/modes/world-map',
-  },
-]
 
 type JourneyChapter = {
   id: string
@@ -57,6 +16,7 @@ function prefersReducedMotion() {
 
 function chapterLabel(section: HTMLElement, index: number) {
   if (section.classList.contains('home-exp-hero')) return 'Opening'
+  if (section.classList.contains('home-roster-showcase')) return 'Hero rosters'
   if (section.classList.contains('home-command-showcase')) return 'Command network'
 
   const ornament = section.querySelector<HTMLElement>('.sec-ornament span, .eyebrow')?.textContent?.trim()
@@ -230,122 +190,190 @@ export function HomeIntro({ replayToken }: { replayToken: number }) {
   )
 }
 
+type RosterMode = 'heroes' | 'dinos'
+
 export function HomeCinematicSequence() {
   const sectionRef = useRef<HTMLElement | null>(null)
+  const [mode, setMode] = useState<RosterMode>('heroes')
   const [active, setActive] = useState(0)
   const [inView, setInView] = useState(false)
   const [paused, setPaused] = useState(false)
 
+  const roster = mode === 'heroes'
+    ? BASIC_HEROES.map((hero) => ({
+        id: hero.id,
+        name: hero.name,
+        role: hero.role,
+        meta: hero.focus,
+        blurb: hero.blurb,
+        img: hero.img,
+      }))
+    : BASIC_DINOS.map((dino) => ({
+        id: dino.id,
+        name: dino.name,
+        role: dino.role,
+        meta: dino.role,
+        blurb: dino.blurb,
+        img: dino.img,
+      }))
+
+  const accent = mode === 'heroes' ? '#38e8ff' : '#ff6b3d'
+  const backdrop = mode === 'heroes' ? asset('feature-heroes-hero.jpg') : asset('feature-dinos-hero.jpg')
+  const activeEntry = roster[Math.min(active, roster.length - 1)]
+
   useEffect(() => {
     const section = sectionRef.current
     if (!section) return
-
     const observer = new IntersectionObserver(
       ([entry]) => setInView(entry.isIntersecting),
-      { threshold: 0.28 },
+      { threshold: 0.25 },
     )
     observer.observe(section)
     return () => observer.disconnect()
   }, [])
 
   useEffect(() => {
+    setActive(0)
+  }, [mode])
+
+  useEffect(() => {
     if (!inView || paused || prefersReducedMotion()) return
     const timer = window.setInterval(() => {
-      setActive((value) => (value + 1) % SHOWCASE.length)
-    }, 2300)
+      setActive((value) => (value + 1) % roster.length)
+    }, 2800)
     return () => window.clearInterval(timer)
-  }, [inView, paused])
-
-  const activeScene = SHOWCASE[active]
+  }, [inView, paused, roster.length])
 
   return (
     <section
       ref={sectionRef}
-      className="home-command-showcase"
-      aria-label="Dino Warfront command network"
-      style={{ ['--command-accent' as string]: activeScene.accent }}
+      className="home-command-showcase home-roster-showcase"
+      aria-label="Dino Warfront human and dinosaur hero rosters"
+      style={{ ['--command-accent' as string]: accent }}
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
     >
       <div className="home-command-showcase__backdrop" aria-hidden>
-        <img src={asset('modes/mode-world.jpg')} alt="" loading="lazy" decoding="async" />
+        <img src={backdrop} alt="" loading="lazy" decoding="async" />
         <div className="home-command-showcase__fog" />
         <div className="home-command-showcase__horizon" />
       </div>
 
       <div className="container-dd relative z-10">
         <header className="home-command-showcase__header">
-          <p>COMMAND NETWORK // 04 SYSTEMS ONLINE</p>
+          <p>ROSTER DATABASE // TWO FORCES ONLINE</p>
           <h2>
-            One empire.
-            <span> Everything connected.</span>
+            Command the heroes.
+            <span> Unleash the dinosaurs.</span>
           </h2>
         </header>
 
-        <div className="home-command-board">
-          <svg className="home-command-lines" viewBox="0 0 1000 620" preserveAspectRatio="none" aria-hidden>
-            {[
-              [360, 245, 210, 130],
-              [640, 245, 790, 125],
-              [365, 375, 220, 500],
-              [635, 375, 790, 500],
-            ].map(([x1, y1, x2, y2], index) => (
-              <line
-                key={index}
-                x1={x1}
-                y1={y1}
-                x2={x2}
-                y2={y2}
-                data-active={active === index ? 'true' : undefined}
-                style={{ stroke: SHOWCASE[index].accent }}
+        <div className="flex justify-center gap-2 mb-5">
+          <button
+            type="button"
+            onClick={() => setMode('heroes')}
+            className="font-ui text-[10px] tracking-[.2em] uppercase px-5 py-3 border transition-all"
+            style={{
+              borderColor: mode === 'heroes' ? '#38e8ff' : 'rgba(255,255,255,.12)',
+              color: mode === 'heroes' ? '#38e8ff' : 'rgba(255,255,255,.5)',
+              background: mode === 'heroes' ? 'rgba(56,232,255,.08)' : 'rgba(0,0,0,.18)',
+            }}
+          >
+            Human hero roster · {BASIC_HEROES.length}
+          </button>
+          <button
+            type="button"
+            onClick={() => setMode('dinos')}
+            className="font-ui text-[10px] tracking-[.2em] uppercase px-5 py-3 border transition-all"
+            style={{
+              borderColor: mode === 'dinos' ? '#ff6b3d' : 'rgba(255,255,255,.12)',
+              color: mode === 'dinos' ? '#ff6b3d' : 'rgba(255,255,255,.5)',
+              background: mode === 'dinos' ? 'rgba(255,107,61,.08)' : 'rgba(0,0,0,.18)',
+            }}
+          >
+            Dino hero roster · {BASIC_DINOS.length}
+          </button>
+        </div>
+
+        <div className="grid lg:grid-cols-[.82fr_1.18fr] gap-4">
+          <Link
+            to={mode === 'heroes' ? '/features/heroes' : '/features/dinos'}
+            className="relative min-h-[32rem] overflow-hidden border border-white/10 bg-[#090812] no-underline text-inherit group"
+            style={{ boxShadow: `0 0 55px ${accent}18, 0 30px 90px rgba(0,0,0,.38)` }}
+          >
+            <div className="absolute inset-0 flex items-center justify-center p-5 pb-28">
+              <img
+                key={activeEntry.id}
+                src={activeEntry.img}
+                alt={activeEntry.name}
+                className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-[1.035]"
+                loading="lazy"
+                decoding="async"
               />
-            ))}
-          </svg>
-
-          <div className="home-command-core" aria-hidden>
-            <span className="home-command-core__ring home-command-core__ring--outer" />
-            <span className="home-command-core__ring home-command-core__ring--inner" />
-            <span className="home-command-core__scanner" />
-            <div className="home-command-core__content" key={active}>
-              <small>{String(active + 1).padStart(2, '0')} / 04</small>
-              <strong>WARFRONT</strong>
-              <em>{activeScene.stat}</em>
             </div>
-          </div>
+            <div className="absolute inset-0 bg-gradient-to-t from-[#05040a] via-transparent to-transparent" />
+            <div className="absolute top-5 left-5 font-ui text-[9px] tracking-[.22em] uppercase px-3 py-2 border bg-black/40" style={{ color: accent, borderColor: `${accent}55` }}>
+              ACTIVE ROSTER SIGNAL // {String(active + 1).padStart(2, '0')}
+            </div>
+            <div className="absolute bottom-0 inset-x-0 p-6 md:p-8">
+              <p className="font-ui text-[9px] tracking-[.22em] uppercase" style={{ color: accent }}>
+                {activeEntry.role}
+              </p>
+              <h3 className="font-display text-3xl md:text-5xl text-white uppercase leading-none mt-1">
+                {activeEntry.name}
+              </h3>
+              <p className="font-body text-sm text-white/58 mt-3 max-w-xl leading-relaxed">
+                {activeEntry.blurb}
+              </p>
+              <p className="font-ui text-[9px] tracking-[.18em] uppercase text-white/45 mt-4">
+                {activeEntry.meta}
+              </p>
+            </div>
+          </Link>
 
-          {SHOWCASE.map((scene, index) => (
-            <Link
-              key={scene.key}
-              to={scene.to}
-              className={`home-command-node home-command-node--${scene.key}`}
-              data-active={active === index ? 'true' : undefined}
-              style={{ ['--node-accent' as string]: scene.accent }}
-              onMouseEnter={() => {
-                setPaused(true)
-                setActive(index)
-              }}
-              onMouseLeave={() => setPaused(false)}
-              onFocus={() => {
-                setPaused(true)
-                setActive(index)
-              }}
-              onBlur={() => setPaused(false)}
-            >
-              <img src={scene.img} alt="" style={{ objectPosition: scene.pos }} loading="lazy" decoding="async" />
-              <div className="home-command-node__shade" />
-              <div className="home-command-node__signal" aria-hidden><i /><i /><i /></div>
-              <div className="home-command-node__copy">
-                <span>{scene.label}</span>
-                <strong>{scene.title}</strong>
-                <small>{scene.stat}</small>
-              </div>
-              <b className="home-command-node__open">OPEN ↗</b>
-            </Link>
-          ))}
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 content-start">
+            {roster.map((entry, index) => {
+              const selected = index === active
+              return (
+                <button
+                  key={entry.id}
+                  type="button"
+                  onClick={() => setActive(index)}
+                  className="relative min-h-[13.5rem] overflow-hidden border bg-[#090812] text-left group transition-all duration-300"
+                  style={{
+                    borderColor: selected ? `${accent}aa` : 'rgba(255,255,255,.08)',
+                    boxShadow: selected ? `0 0 28px ${accent}18` : 'none',
+                  }}
+                >
+                  <div className="absolute inset-0 flex items-center justify-center p-2 pb-14">
+                    <img
+                      src={entry.img}
+                      alt=""
+                      className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#05040a] via-[#05040a]/20 to-transparent" />
+                  <div className="absolute bottom-0 inset-x-0 p-3">
+                    <p className="font-ui text-[8px] tracking-[.16em] uppercase" style={{ color: selected ? accent : 'rgba(255,255,255,.4)' }}>
+                      {entry.role}
+                    </p>
+                    <strong className="block font-display text-sm md:text-base text-white uppercase mt-1 leading-none">
+                      {entry.name}
+                    </strong>
+                  </div>
+                  {selected && <span className="absolute inset-x-0 top-0 h-px" style={{ background: accent, boxShadow: `0 0 10px ${accent}` }} />}
+                </button>
+              )
+            })}
+          </div>
         </div>
 
         <div className="home-command-showcase__footer">
-          <span className="home-command-showcase__pulse"><i /> LIVE NETWORK</span>
-          <strong>{activeScene.title}</strong>
-          <span>Hover a system · or watch the network cycle</span>
+          <span className="home-command-showcase__pulse"><i /> ROSTER LIVE</span>
+          <strong>{mode === 'heroes' ? 'HUMAN HEROES' : 'DINO HEROES'}</strong>
+          <span>Select a card · full kits stay on the roster page</span>
         </div>
       </div>
     </section>
