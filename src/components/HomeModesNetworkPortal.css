@@ -52,6 +52,28 @@
   transform-origin: left top;
 }
 
+/* The base command-card style uses a white glint. Keep the partner card purely violet. */
+.home-feature-node--partner .home-command-node__shade::after {
+  background: linear-gradient(
+    115deg,
+    transparent 35%,
+    color-mix(in srgb, #c78cff 34%, transparent) 50%,
+    transparent 65%
+  );
+}
+
+.home-feature-node--partner[data-active='true'] {
+  border-color: #c78cff;
+  box-shadow:
+    0 28px 80px rgba(0,0,0,.5),
+    0 0 38px rgba(199,140,255,.26),
+    inset 0 0 26px rgba(199,140,255,.09);
+}
+
+.home-feature-node--partner[data-active='true'] .home-feature-node__index {
+  color: rgba(199,140,255,.48);
+}
+
 .home-feature-node__index {
   position: absolute;
   z-index: 4;
@@ -66,6 +88,10 @@
 .home-feature-node[data-active='true'] .home-feature-node__index {
   color: color-mix(in srgb, var(--node-accent) 38%, white 8%);
   transform: translateY(-.12rem) scale(1.06);
+}
+
+.home-feature-node--partner[data-active='true'] .home-feature-node__index {
+  color: rgba(199,140,255,.48);
 }
 
 .home-feature-core {
@@ -236,6 +262,11 @@
   .home-feature-node:hover {
     transform: perspective(900px) scale(1.045) translateZ(18px);
     box-shadow: 0 26px 70px rgba(0,0,0,.45), 0 0 32px color-mix(in srgb, var(--node-accent) 18%, transparent);
+  }
+
+  .home-feature-node--partner:hover {
+    border-color: #c78cff;
+    box-shadow: 0 26px 70px rgba(0,0,0,.45), 0 0 34px rgba(199,140,255,.22);
   }
 }
 
