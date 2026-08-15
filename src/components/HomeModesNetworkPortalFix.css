@@ -13,6 +13,39 @@
   opacity: .9;
 }
 
+/*
+ * Keep the original Partner artwork, but avoid the filtered 3D image compositing
+ * path that can turn this JPEG layer white in Firefox after hover/activation.
+ * The card still gets its violet border/glow from --node-accent.
+ */
+.home-feature-node--partner > img {
+  filter: none !important;
+  opacity: .78;
+  transform: scale(1.08);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transition: opacity .35s ease, transform 1.1s cubic-bezier(.16,1,.3,1);
+}
+
+.home-feature-node--partner[data-active='true'] > img,
+.home-feature-node--partner:hover > img,
+.home-feature-node--partner:focus-visible > img {
+  filter: none !important;
+  opacity: 1;
+  transform: scale(1.025);
+}
+
+/* No bright sweep over the Partner image. The violet frame/radar provides feedback. */
+.home-feature-node--partner .home-command-node__shade::after {
+  display: none;
+}
+
+.home-feature-detail--partner .home-feature-detail__image img {
+  filter: none !important;
+  animation: none !important;
+  opacity: .88;
+}
+
 .home-feature-detail--partner .home-feature-detail__copy h3 {
   color: var(--detail-accent);
   text-shadow: 0 0 24px color-mix(in srgb, var(--detail-accent) 28%, transparent);
