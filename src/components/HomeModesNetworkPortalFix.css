@@ -13,81 +13,24 @@
   opacity: .9;
 }
 
-/* Partner stays muted purple at rest and becomes brighter purple on interaction. */
-.home-feature-node--partner {
-  border-color: rgba(184,108,255,.28) !important;
-  box-shadow:
-    0 18px 55px rgba(0,0,0,.34),
-    0 0 18px rgba(184,108,255,.10) !important;
-}
-
-.home-feature-node--partner:hover,
-.home-feature-node--partner[data-active='true'] {
-  border-color: rgba(184,108,255,.86) !important;
-  box-shadow:
-    0 28px 80px rgba(0,0,0,.5),
-    0 0 42px rgba(184,108,255,.30),
-    inset 0 0 28px rgba(184,108,255,.08) !important;
-}
-
-.home-feature-node--partner:hover > img,
-.home-feature-node--partner[data-active='true'] > img {
-  filter: saturate(1.05) brightness(.84) contrast(1.05) !important;
-}
-
-.home-feature-node--partner .home-command-node__shade {
-  background:
-    linear-gradient(to top, rgba(5,4,10,.95) 0%, rgba(5,4,10,.52) 42%, transparent 75%),
-    linear-gradient(120deg, transparent 42%, rgba(184,108,255,.14));
-}
-
-/* Partner never uses the generic white command-card glint. */
-.home-feature-node--partner .home-command-node__shade::after,
-.home-feature-node--partner:hover .home-command-node__shade::after,
-.home-feature-node--partner[data-active='true'] .home-command-node__shade::after {
+/*
+ * Keep every gameplay card on the same interaction model.
+ * Partner gets its violet identity from --node-accent (#b86cff) in the component,
+ * instead of stacking special hover/active overrides that can fight the base card
+ * transition after mouseleave.
+ */
+.home-feature-node--partner .home-command-node__shade::after {
   background: linear-gradient(
     115deg,
-    transparent 32%,
-    rgba(184,108,255,.08) 42%,
-    rgba(184,108,255,.52) 50%,
-    rgba(184,108,255,.16) 57%,
-    transparent 68%
+    transparent 34%,
+    color-mix(in srgb, var(--node-accent) 48%, transparent) 49%,
+    color-mix(in srgb, var(--node-accent) 18%, transparent) 55%,
+    transparent 66%
   ) !important;
   border-color: transparent !important;
 }
 
-.home-feature-node--partner .home-command-node__copy span,
-.home-feature-node--partner .home-command-node__signal i {
-  color: #b86cff !important;
-}
-
-.home-feature-node--partner .home-command-node__copy strong {
-  color: #c8a0ec !important;
-  text-shadow: 0 6px 24px rgba(0,0,0,.62), 0 0 16px rgba(184,108,255,.10);
-}
-
-.home-feature-node--partner:hover .home-command-node__copy strong,
-.home-feature-node--partner[data-active='true'] .home-command-node__copy strong,
-.home-feature-node--partner:hover .home-feature-node__index,
-.home-feature-node--partner[data-active='true'] .home-feature-node__index {
-  color: #b86cff !important;
-  text-shadow: 0 0 18px rgba(184,108,255,.34);
-}
-
-.home-feature-node--partner .home-command-node__open {
-  color: rgba(200,160,236,.72) !important;
-}
-
-.home-feature-node--partner:hover .home-command-node__open,
-.home-feature-node--partner[data-active='true'] .home-command-node__open {
-  color: #b86cff !important;
-  border-color: rgba(184,108,255,.72) !important;
-  background: rgba(35,12,55,.72) !important;
-  box-shadow: 0 0 18px rgba(184,108,255,.16);
-}
-
-/* The large active-feature title also follows the Partner accent instead of global white. */
 .home-feature-detail--partner .home-feature-detail__copy h3 {
-  color: #b86cff !important;
-  text-shadow: 0 0 24px rgba(184,108,255,.28);
+  color: var(--detail-accent);
+  text-shadow: 0 0 24px color-mix(in srgb, var(--detail-accent) 28%, transparent);
 }
