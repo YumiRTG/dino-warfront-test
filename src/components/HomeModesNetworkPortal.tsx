@@ -6,21 +6,21 @@ import './HomeModesNetworkPortal.css'
 const FEATURES = [
   {
     key: 'defense',
-    slot: 'base',
+    slot: 'defense',
     label: 'TOWER DEFENSE',
     title: 'DAILY SKILL TEST',
     stat: 'RANKED DAILY',
     text: 'A fresh defense challenge every day. Everyone faces the same battlefield and rules — placement, timing and adaptation decide how high you climb.',
     hook: 'Build smarter. React faster. Take the ranking.',
-    img: asset('modes/mode-defense.jpg'),
+    img: asset('promo/tower-defense-promo.jpg'),
     pos: 'center center',
-    accent: '#3dffb5',
+    accent: '#e7b84b',
     to: '/modes/tower-defense',
-    chips: ['Daily challenge', 'Skill ranking', 'Same rules for all'],
+    chips: ['Daily challenge', 'Skill ranking', 'Primitive defenses'],
   },
   {
     key: 'campaign',
-    slot: 'dinos',
+    slot: 'campaign',
     label: 'CAMPAIGN',
     title: 'LIVE RPG FIGHTS',
     stat: '78 STAGES',
@@ -34,23 +34,23 @@ const FEATURES = [
   },
   {
     key: 'world',
-    slot: 'heroes',
+    slot: 'world',
     label: 'WORLD MAP',
     title: 'FIGHT YOUR WAY',
     stat: 'WORLD ACTIVE',
-    text: 'Hunt alone, move with friends or rally your entire alliance. Raid rivals, reinforce allies, fight world bosses and turn a shared map into your territory.',
+    text: 'Hunt alone, move with friends or rally your entire alliance. Raid rivals, reinforce allies and turn a shared persistent map into your territory.',
     hook: 'Solo when you want. Together when it matters.',
     img: asset('modes/mode-world.jpg'),
     pos: 'center 45%',
     accent: '#38e8ff',
     to: '/modes/world-map',
-    chips: ['Solo attacks', 'Alliance rallies', 'Shared persistent world'],
+    chips: ['Solo attacks', 'Alliance rallies', 'Shared world'],
   },
   {
     key: 'arena',
-    slot: 'war',
+    slot: 'arena',
     label: 'ARENA',
-    title: 'OUTPLAY THE META',
+    title: 'BUILD THE COUNTER',
     stat: 'WEEKLY PVP',
     text: 'Take your strongest formations into competitive ladders. Read the enemy lineup, build the counter and prove your squad can beat another player — not just scripted AI.',
     hook: 'Every defense creates a new counter to solve.',
@@ -68,20 +68,35 @@ const FEATURES = [
     stat: 'BABY → APEX',
     text: 'Choose your partner as a baby and raise it beside your empire. Feed it, pet it, strengthen the bond, watch it grow and bring it with you on marches as a true companion.',
     hook: 'You do not unlock a pet. You raise a partner.',
-    img: asset('feature-dinos-hero.jpg'),
+    img: asset('promo/partner-system-promo.jpg'),
     pos: 'center center',
     accent: '#c78cff',
     to: '/features/dinos',
-    chips: ['Baby → adult', 'Feed & bond', 'March together'],
+    chips: ['Hatch & bond', 'Grow together', 'March companion'],
+  },
+  {
+    key: 'worldboss',
+    slot: 'worldboss',
+    label: 'WORLD BOSS',
+    title: 'RALLY THE HUNT',
+    stat: 'ALLIANCE EVENT',
+    text: 'A colossal predator has entered the world map. Join the hunt at any point during the event, stack damage with your alliance and push for the highest reward tiers.',
+    hook: 'One target. Every march. Rally the hunt.',
+    img: asset('promo/worldboss-promo.jpg'),
+    pos: 'center center',
+    accent: '#ff8a38',
+    to: '/modes/world-map#world-boss',
+    chips: ['Alliance hunt', 'Timed world event', 'Tiered rewards'],
   },
 ] as const
 
 const CONNECTIONS = [
-  [365, 260, 170, 125],
-  [635, 260, 830, 125],
-  [365, 420, 190, 555],
-  [635, 420, 810, 555],
-  [500, 450, 500, 585],
+  [430, 305, 175, 105],
+  [570, 305, 825, 105],
+  [405, 360, 155, 355],
+  [595, 360, 845, 355],
+  [430, 415, 190, 615],
+  [570, 415, 810, 615],
 ]
 
 function prefersReducedMotion() {
@@ -155,7 +170,7 @@ export default function HomeModesNetworkPortal() {
     if (!inView || paused || prefersReducedMotion()) return
     const timer = window.setInterval(() => {
       setActive((value) => (value + 1) % FEATURES.length)
-    }, 3300)
+    }, 3600)
     return () => window.clearInterval(timer)
   }, [inView, paused])
 
@@ -166,7 +181,14 @@ export default function HomeModesNetworkPortal() {
   return createPortal(
     <>
       <div className="home-command-showcase__backdrop" aria-hidden>
-        <img src={feature.img} alt="" loading="lazy" decoding="async" style={{ objectPosition: feature.pos }} />
+        <img
+          key={feature.key}
+          src={feature.img}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          style={{ objectPosition: feature.pos }}
+        />
         <div className="home-command-showcase__fog" />
         <div className="home-command-showcase__horizon" />
       </div>
@@ -176,16 +198,17 @@ export default function HomeModesNetworkPortal() {
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
       >
-        <header className="home-command-showcase__header">
-          <p>WARFRONT SYSTEMS // 05 EXPERIENCES ONLINE</p>
+        <header className="home-command-showcase__header home-feature-header">
+          <p>WARFRONT SYSTEMS // 06 EXPERIENCES ONLINE</p>
           <h2>
-            More than strategy.
-            <span> Every system fights differently.</span>
+            Six ways to fight.
+            <span> One empire to rule.</span>
           </h2>
+          <small>Every mode rewards progress. Every victory strengthens your empire.</small>
         </header>
 
         <div className="home-command-board home-feature-command-board">
-          <svg className="home-command-lines" viewBox="0 0 1000 680" preserveAspectRatio="none" aria-hidden>
+          <svg className="home-command-lines" viewBox="0 0 1000 720" preserveAspectRatio="none" aria-hidden>
             {CONNECTIONS.map(([x1, y1, x2, y2], index) => (
               <line
                 key={index}
@@ -199,12 +222,14 @@ export default function HomeModesNetworkPortal() {
             ))}
           </svg>
 
-          <div className="home-command-core" aria-hidden>
+          <div className="home-command-core home-feature-core" aria-hidden>
             <span className="home-command-core__ring home-command-core__ring--outer" />
             <span className="home-command-core__ring home-command-core__ring--inner" />
             <span className="home-command-core__scanner" />
+            <span className="home-feature-core__ping home-feature-core__ping--one" />
+            <span className="home-feature-core__ping home-feature-core__ping--two" />
             <div className="home-command-core__content" key={active}>
-              <small>{String(active + 1).padStart(2, '0')} / 05</small>
+              <small>{String(active + 1).padStart(2, '0')} / 06</small>
               <strong>WARFRONT</strong>
               <em>{feature.stat}</em>
             </div>
@@ -214,10 +239,15 @@ export default function HomeModesNetworkPortal() {
             <a
               key={item.key}
               href={pageHref(item.to)}
-              className={`home-command-node home-command-node--${item.slot}`}
+              className={`home-command-node home-feature-node home-feature-node--${item.slot}`}
               data-active={active === index ? 'true' : undefined}
+              aria-label={`${item.label}: ${item.title}`}
               style={{ ['--node-accent' as string]: item.accent }}
-              onMouseEnter={() => setActive(index)}
+              onMouseEnter={() => {
+                setPaused(true)
+                setActive(index)
+              }}
+              onMouseLeave={() => setPaused(false)}
               onFocus={() => {
                 setPaused(true)
                 setActive(index)
@@ -227,6 +257,7 @@ export default function HomeModesNetworkPortal() {
               <img src={item.img} alt="" style={{ objectPosition: item.pos }} loading="lazy" decoding="async" />
               <div className="home-command-node__shade" />
               <div className="home-command-node__signal" aria-hidden><i /><i /><i /></div>
+              <span className="home-feature-node__index">{String(index + 1).padStart(2, '0')}</span>
               <div className="home-command-node__copy">
                 <span>{item.label}</span>
                 <strong>{item.title}</strong>
@@ -237,43 +268,29 @@ export default function HomeModesNetworkPortal() {
           ))}
         </div>
 
-        <div
-          className="mt-4 border border-white/[.08] bg-black/30 px-5 py-5 md:px-7 md:py-6"
-          style={{ boxShadow: `inset 3px 0 0 ${feature.accent}, 0 20px 60px rgba(0,0,0,.22)` }}
-        >
-          <div className="grid md:grid-cols-[1.35fr_.65fr] gap-5 md:gap-8 items-end">
-            <div>
-              <p className="font-ui text-[9px] md:text-[10px] tracking-[.24em] uppercase" style={{ color: feature.accent }}>
-                ACTIVE FEATURE // {feature.label}
-              </p>
-              <h3 className="font-display text-2xl md:text-4xl text-white uppercase mt-2 leading-none">
-                {feature.title}
-              </h3>
-              <p className="font-body text-sm md:text-base text-white/65 leading-relaxed mt-3 max-w-3xl">
-                {feature.text}
-              </p>
-              <p className="font-display uppercase text-base md:text-lg mt-3" style={{ color: feature.accent }}>
-                {feature.hook}
-              </p>
-            </div>
-            <div className="flex md:justify-end flex-wrap gap-2">
-              {feature.chips.map((chip) => (
-                <span
-                  key={chip}
-                  className="font-ui text-[9px] tracking-[.14em] uppercase px-3 py-2 border bg-black/30"
-                  style={{ borderColor: `${feature.accent}55`, color: '#fff' }}
-                >
-                  {chip}
-                </span>
-              ))}
-            </div>
+        <div className="home-feature-detail" style={{ ['--detail-accent' as string]: feature.accent }}>
+          <div className="home-feature-detail__image">
+            <img key={feature.key} src={feature.img} alt="" style={{ objectPosition: feature.pos }} />
+            <span aria-hidden />
+          </div>
+          <div className="home-feature-detail__copy">
+            <p>ACTIVE FEATURE // {feature.label}</p>
+            <h3>{feature.title}</h3>
+            <div>{feature.text}</div>
+            <strong>{feature.hook}</strong>
+          </div>
+          <div className="home-feature-detail__chips">
+            {feature.chips.map((chip) => (
+              <span key={chip}>{chip}</span>
+            ))}
+            <a href={pageHref(feature.to)}>ENTER FEATURE ↗</a>
           </div>
         </div>
 
         <div className="home-command-showcase__footer">
-          <span className="home-command-showcase__pulse"><i /> 05 SYSTEMS LIVE</span>
+          <span className="home-command-showcase__pulse"><i /> 06 SYSTEMS LIVE</span>
           <strong>{feature.label}</strong>
-          <span>Hover a feature · radar cycles automatically</span>
+          <span>Hover or focus a feature · radar cycles automatically</span>
         </div>
       </div>
     </>,
