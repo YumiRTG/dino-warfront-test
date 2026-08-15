@@ -5,66 +5,83 @@ import { asset } from '@/lib/assets'
 const FEATURES = [
   {
     key: 'defense',
-    eyebrow: 'Tower Defense',
-    title: 'Daily Skill Test',
-    text: 'Defend a fresh challenge every day. Everyone gets the same battlefield and the same rules — your decisions decide how high you climb.',
+    slot: 'base',
+    label: 'TOWER DEFENSE',
+    title: 'DAILY SKILL TEST',
+    stat: 'RANKED DAILY',
+    text: 'A fresh defense challenge every day. Everyone faces the same battlefield and rules — placement, timing and adaptation decide how high you climb.',
     hook: 'Build smarter. React faster. Take the ranking.',
     img: asset('modes/mode-defense.jpg'),
     pos: 'center center',
     accent: '#3dffb5',
     to: '/modes/tower-defense',
-    chips: ['Daily challenge', 'Skill ranking', '5 tower types'],
+    chips: ['Daily challenge', 'Skill ranking', 'Same rules for all'],
   },
   {
     key: 'campaign',
-    eyebrow: 'Campaign',
-    title: 'Live RPG Battles',
-    text: 'Push through the prehistoric campaign in real-time RPG fights. Build your squad, use the right heroes and dinosaurs, and adapt while the battle is happening.',
+    slot: 'dinos',
+    label: 'CAMPAIGN',
+    title: 'LIVE RPG FIGHTS',
+    stat: '78 STAGES',
+    text: 'Push through the prehistoric campaign in real-time RPG battles. Build the right squad, trigger skills at the right moment and adapt while the fight is still happening.',
     hook: 'The campaign is fought — not simulated.',
     img: asset('hero-dino-volcano.jpg'),
     pos: 'center center',
     accent: '#f0c14d',
     to: '/modes/campaign',
-    chips: ['Real-time combat', '78 stages', 'Boss regions'],
+    chips: ['Real-time combat', 'Hero + dino squads', 'Boss regions'],
   },
   {
     key: 'world',
-    eyebrow: 'World Map',
-    title: 'Fight Your Way',
-    text: 'Hunt alone, move with friends or rally your entire alliance. Raid rivals, reinforce allies, fight bosses and turn a shared world into your territory.',
+    slot: 'heroes',
+    label: 'WORLD MAP',
+    title: 'FIGHT YOUR WAY',
+    stat: 'WORLD ACTIVE',
+    text: 'Hunt alone, move with friends or rally your entire alliance. Raid rivals, reinforce allies, fight world bosses and turn a shared map into your territory.',
     hook: 'Solo when you want. Together when it matters.',
     img: asset('modes/mode-world.jpg'),
     pos: 'center 45%',
     accent: '#38e8ff',
     to: '/modes/world-map',
-    chips: ['Solo & co-op', 'Alliance rallies', 'Shared world'],
+    chips: ['Solo attacks', 'Alliance rallies', 'Shared persistent world'],
   },
   {
     key: 'arena',
-    eyebrow: 'Arena',
-    title: 'Build The Counter',
-    text: 'Take your strongest squads into weekly PvP ladders. Read the enemy lineup, create the counter and prove that your strategy survives another player.',
-    hook: 'Two ladders. Endless ways to outplay the meta.',
+    slot: 'war',
+    label: 'ARENA',
+    title: 'OUTPLAY THE META',
+    stat: 'WEEKLY PVP',
+    text: 'Take your strongest formations into competitive ladders. Read the enemy lineup, build the counter and prove your squad can beat another player — not just scripted AI.',
+    hook: 'Every defense creates a new counter to solve.',
     img: asset('modes/mode-arena.jpg'),
     pos: 'center center',
     accent: '#ff4d1a',
     to: '/modes/arena',
-    chips: ['Weekly ladders', 'Squad tactics', 'Team Arena'],
+    chips: ['Weekly ladders', 'Counter squads', 'Team Arena'],
   },
   {
     key: 'partner',
-    eyebrow: 'Partner System',
-    title: 'Raise Your Dinosaur',
-    text: 'Start with a baby dinosaur and make it yours. Feed it, bond with it, let it grow beside you and bring your partner along as your empire gets stronger.',
-    hook: 'You do not unlock a pet. You raise a companion.',
-    img: asset('dino-raptor.png'),
+    slot: 'partner',
+    label: 'PARTNER SYSTEM',
+    title: 'RAISE YOUR DINOSAUR',
+    stat: 'BABY → APEX',
+    text: 'Choose your partner as a baby and raise it beside your empire. Feed it, pet it, strengthen the bond, watch it grow and bring it with you on marches as a true companion.',
+    hook: 'You do not unlock a pet. You raise a partner.',
+    img: asset('feature-dinos-hero.jpg'),
     pos: 'center center',
     accent: '#c78cff',
     to: '/features/dinos',
-    chips: ['Baby → adult', 'Bond & grow', 'March together'],
-    contain: true,
+    chips: ['Baby → adult', 'Feed & bond', 'March together'],
   },
 ] as const
+
+const CONNECTIONS = [
+  [365, 260, 170, 125],
+  [635, 260, 830, 125],
+  [365, 420, 190, 555],
+  [635, 420, 810, 555],
+  [500, 450, 500, 585],
+]
 
 function prefersReducedMotion() {
   return typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -85,42 +102,34 @@ export default function HomeModesNetworkPortal() {
 
   useEffect(() => {
     const sections = Array.from(document.querySelectorAll<HTMLElement>('.home-exp-home > section'))
-
-    const oldNetwork = sections.find((candidate) => {
-      const heading = candidate.querySelector('h2')?.textContent?.replace(/\s+/g, ' ').trim().toLowerCase()
-      return heading?.includes('one empire') && heading.includes('everything connected')
-    })
-
-    if (oldNetwork) oldNetwork.hidden = true
-
     const section = sections.find((candidate) => {
       const heading = candidate.querySelector('h2')?.textContent?.replace(/\s+/g, ' ').trim().toLowerCase()
       return heading?.includes('four ways') && heading.includes('to fight')
     })
 
-    if (!section) {
-      return () => {
-        if (oldNetwork) oldNetwork.hidden = false
-      }
-    }
+    if (!section) return
 
     const originalChildren = Array.from(section.children) as HTMLElement[]
+    const hadSectionBand = section.classList.contains('section-band')
     const previousLabel = section.getAttribute('aria-label')
 
     originalChildren.forEach((child) => {
       child.hidden = true
     })
 
-    section.classList.add('home-feature-pitch')
-    section.setAttribute('aria-label', 'Dino Warfront gameplay features')
+    if (hadSectionBand) section.classList.remove('section-band')
+    section.classList.add('home-command-showcase', 'home-modes-showcase')
+    section.setAttribute('aria-label', 'Dino Warfront core gameplay features')
+    section.style.setProperty('--command-accent', FEATURES[0].accent)
     setTarget(section)
 
     return () => {
-      if (oldNetwork) oldNetwork.hidden = false
       originalChildren.forEach((child) => {
         child.hidden = false
       })
-      section.classList.remove('home-feature-pitch')
+      if (hadSectionBand) section.classList.add('section-band')
+      section.classList.remove('home-command-showcase', 'home-modes-showcase')
+      section.style.removeProperty('--command-accent')
       if (previousLabel === null) section.removeAttribute('aria-label')
       else section.setAttribute('aria-label', previousLabel)
     }
@@ -128,10 +137,14 @@ export default function HomeModesNetworkPortal() {
 
   useEffect(() => {
     if (!target) return
+    target.style.setProperty('--command-accent', FEATURES[active].accent)
+  }, [active, target])
 
+  useEffect(() => {
+    if (!target) return
     const observer = new IntersectionObserver(
       ([entry]) => setInView(entry.isIntersecting),
-      { threshold: 0.24 },
+      { threshold: 0.26 },
     )
     observer.observe(target)
     return () => observer.disconnect()
@@ -141,7 +154,7 @@ export default function HomeModesNetworkPortal() {
     if (!inView || paused || prefersReducedMotion()) return
     const timer = window.setInterval(() => {
       setActive((value) => (value + 1) % FEATURES.length)
-    }, 4200)
+    }, 3300)
     return () => window.clearInterval(timer)
   }, [inView, paused])
 
@@ -150,208 +163,119 @@ export default function HomeModesNetworkPortal() {
   const feature = FEATURES[active]
 
   return createPortal(
-    <div
-      className="relative overflow-hidden py-20 md:py-28"
-      style={{
-        background: `
-          radial-gradient(circle at 20% 15%, color-mix(in srgb, ${feature.accent} 14%, transparent), transparent 32%),
-          radial-gradient(circle at 82% 78%, rgba(255,77,26,.10), transparent 30%),
-          linear-gradient(180deg, #06050c 0%, #0a0712 48%, #05040a 100%)
-        `,
-      }}
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-    >
-      <div
-        className="absolute inset-0 pointer-events-none opacity-30"
-        style={{
-          backgroundImage:
-            'linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px)',
-          backgroundSize: '54px 54px',
-          maskImage: 'linear-gradient(to bottom, black, transparent 90%)',
-        }}
-      />
+    <>
+      <div className="home-command-showcase__backdrop" aria-hidden>
+        <img src={feature.img} alt="" loading="lazy" decoding="async" style={{ objectPosition: feature.pos }} />
+        <div className="home-command-showcase__fog" />
+        <div className="home-command-showcase__horizon" />
+      </div>
 
-      <div className="container-dd relative z-10">
-        <header className="max-w-4xl mb-10 md:mb-14">
-          <p className="font-ui text-[10px] md:text-xs tracking-[0.30em] uppercase text-[var(--gold)] mb-4">
-            Core gameplay // 05 experiences
-          </p>
-          <h2 className="font-display uppercase text-white leading-[0.88] tracking-[-0.035em] text-[clamp(3rem,7vw,6.8rem)]">
-            More than a
-            <br />
-            <span style={{ color: feature.accent, textShadow: `0 0 38px ${feature.accent}44` }}>
-              strategy game.
-            </span>
+      <div
+        className="container-dd relative z-10"
+        onMouseEnter={() => setPaused(true)}
+        onMouseLeave={() => setPaused(false)}
+      >
+        <header className="home-command-showcase__header">
+          <p>WARFRONT SYSTEMS // 05 EXPERIENCES ONLINE</p>
+          <h2>
+            More than strategy.
+            <span> Every system fights differently.</span>
           </h2>
-          <p className="body-lg mt-6 max-w-2xl">
-            Build an empire, then actually use it. Every major system gives you a different reason to log in, improve and fight.
-          </p>
         </header>
 
-        <div className="grid lg:grid-cols-[1.55fr_.85fr] gap-4 lg:gap-5 items-stretch">
-          <a
-            href={pageHref(feature.to)}
-            className="group relative min-h-[33rem] md:min-h-[38rem] overflow-hidden border border-white/10 no-underline text-inherit bg-[#090710]"
-            style={{ boxShadow: `0 28px 90px rgba(0,0,0,.5), 0 0 50px ${feature.accent}16` }}
-          >
-            <div className="absolute inset-0 overflow-hidden">
-              {feature.contain ? (
-                <>
-                  <div
-                    className="absolute inset-0 opacity-25"
-                    style={{
-                      backgroundImage: `url(${asset('env-base.png')})`,
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center',
-                      filter: 'brightness(.55) saturate(.8)',
-                    }}
-                  />
-                  <img
-                    key={feature.key}
-                    src={feature.img}
-                    alt=""
-                    className="absolute inset-0 w-full h-full object-contain p-10 md:p-16 transition-transform duration-700 group-hover:scale-[1.04]"
-                    loading="lazy"
-                    decoding="async"
-                  />
-                </>
-              ) : (
-                <img
-                  key={feature.key}
-                  src={feature.img}
-                  alt=""
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.035]"
-                  style={{ objectPosition: feature.pos }}
-                  loading="lazy"
-                  decoding="async"
-                />
-              )}
-            </div>
+        <div className="home-command-board home-feature-command-board">
+          <svg className="home-command-lines" viewBox="0 0 1000 680" preserveAspectRatio="none" aria-hidden>
+            {CONNECTIONS.map(([x1, y1, x2, y2], index) => (
+              <line
+                key={index}
+                x1={x1}
+                y1={y1}
+                x2={x2}
+                y2={y2}
+                data-active={active === index ? 'true' : undefined}
+                style={{ stroke: FEATURES[index].accent }}
+              />
+            ))}
+          </svg>
 
-            <div
-              className="absolute inset-0"
-              style={{
-                background:
-                  'linear-gradient(90deg, rgba(5,4,10,.96) 0%, rgba(5,4,10,.72) 38%, rgba(5,4,10,.18) 75%), linear-gradient(to top, rgba(5,4,10,.96) 0%, transparent 58%)',
+          <div className="home-command-core" aria-hidden>
+            <span className="home-command-core__ring home-command-core__ring--outer" />
+            <span className="home-command-core__ring home-command-core__ring--inner" />
+            <span className="home-command-core__scanner" />
+            <div className="home-command-core__content" key={active}>
+              <small>{String(active + 1).padStart(2, '0')} / 05</small>
+              <strong>WARFRONT</strong>
+              <em>{feature.stat}</em>
+            </div>
+          </div>
+
+          {FEATURES.map((item, index) => (
+            <a
+              key={item.key}
+              href={pageHref(item.to)}
+              className={`home-command-node home-command-node--${item.slot}`}
+              data-active={active === index ? 'true' : undefined}
+              style={{ ['--node-accent' as string]: item.accent }}
+              onMouseEnter={() => setActive(index)}
+              onFocus={() => {
+                setPaused(true)
+                setActive(index)
               }}
-            />
-            <div
-              className="absolute inset-x-0 top-0 h-px"
-              style={{ background: `linear-gradient(90deg, ${feature.accent}, transparent 70%)` }}
-            />
-
-            <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-8 md:p-10">
-              <div className="max-w-xl">
-                <div className="flex items-center gap-3 mb-4">
-                  <span
-                    className="h-px w-10"
-                    style={{ background: feature.accent, boxShadow: `0 0 12px ${feature.accent}` }}
-                  />
-                  <span
-                    className="font-ui text-[10px] tracking-[0.26em] uppercase"
-                    style={{ color: feature.accent }}
-                  >
-                    {feature.eyebrow}
-                  </span>
-                </div>
-
-                <h3 className="font-display text-white uppercase text-[clamp(2.4rem,5vw,5rem)] leading-[.9] tracking-[-.025em]">
-                  {feature.title}
-                </h3>
-                <p className="font-body text-base md:text-lg text-white/75 leading-relaxed mt-5 max-w-lg">
-                  {feature.text}
-                </p>
-                <p className="font-display uppercase text-lg md:text-xl mt-4" style={{ color: feature.accent }}>
-                  {feature.hook}
-                </p>
-
-                <div className="flex flex-wrap gap-2 mt-6">
-                  {feature.chips.map((chip) => (
-                    <span
-                      key={chip}
-                      className="font-ui text-[9px] md:text-[10px] tracking-[0.14em] uppercase px-3 py-2 border bg-black/30"
-                      style={{ borderColor: `${feature.accent}55`, color: '#fff' }}
-                    >
-                      {chip}
-                    </span>
-                  ))}
-                </div>
-
-                <div className="mt-8 inline-flex items-center gap-3 font-ui text-[10px] tracking-[0.22em] uppercase text-white group-hover:gap-5 transition-all">
-                  Explore feature <span style={{ color: feature.accent }}>↗</span>
-                </div>
+              onBlur={() => setPaused(false)}
+            >
+              <img src={item.img} alt="" style={{ objectPosition: item.pos }} loading="lazy" decoding="async" />
+              <div className="home-command-node__shade" />
+              <div className="home-command-node__signal" aria-hidden><i /><i /><i /></div>
+              <div className="home-command-node__copy">
+                <span>{item.label}</span>
+                <strong>{item.title}</strong>
+                <small>{item.stat}</small>
               </div>
-            </div>
+              <b className="home-command-node__open">OPEN ↗</b>
+            </a>
+          ))}
+        </div>
 
-            <div className="absolute top-5 right-5 md:top-7 md:right-7 font-display text-5xl md:text-7xl text-white/[.08]">
-              0{active + 1}
+        <div
+          className="mt-4 border border-white/[.08] bg-black/30 px-5 py-5 md:px-7 md:py-6"
+          style={{ boxShadow: `inset 3px 0 0 ${feature.accent}, 0 20px 60px rgba(0,0,0,.22)` }}
+        >
+          <div className="grid md:grid-cols-[1.35fr_.65fr] gap-5 md:gap-8 items-end">
+            <div>
+              <p className="font-ui text-[9px] md:text-[10px] tracking-[.24em] uppercase" style={{ color: feature.accent }}>
+                ACTIVE FEATURE // {feature.label}
+              </p>
+              <h3 className="font-display text-2xl md:text-4xl text-white uppercase mt-2 leading-none">
+                {feature.title}
+              </h3>
+              <p className="font-body text-sm md:text-base text-white/65 leading-relaxed mt-3 max-w-3xl">
+                {feature.text}
+              </p>
+              <p className="font-display uppercase text-base md:text-lg mt-3" style={{ color: feature.accent }}>
+                {feature.hook}
+              </p>
             </div>
-          </a>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2.5">
-            {FEATURES.map((item, index) => {
-              const selected = index === active
-              return (
-                <button
-                  key={item.key}
-                  type="button"
-                  onClick={() => setActive(index)}
-                  onFocus={() => setPaused(true)}
-                  onBlur={() => setPaused(false)}
-                  className="relative overflow-hidden text-left min-h-[6.3rem] border px-5 py-4 transition-all duration-300"
-                  style={{
-                    borderColor: selected ? `${item.accent}99` : 'rgba(255,255,255,.08)',
-                    background: selected
-                      ? `linear-gradient(105deg, ${item.accent}18, rgba(12,9,20,.92) 48%)`
-                      : 'rgba(10,8,17,.72)',
-                    boxShadow: selected ? `0 0 30px ${item.accent}12` : 'none',
-                  }}
+            <div className="flex md:justify-end flex-wrap gap-2">
+              {feature.chips.map((chip) => (
+                <span
+                  key={chip}
+                  className="font-ui text-[9px] tracking-[.14em] uppercase px-3 py-2 border bg-black/30"
+                  style={{ borderColor: `${feature.accent}55`, color: '#fff' }}
                 >
-                  {selected && (
-                    <span
-                      className="absolute left-0 top-0 bottom-0 w-[2px]"
-                      style={{ background: item.accent, boxShadow: `0 0 14px ${item.accent}` }}
-                    />
-                  )}
-                  <div className="flex items-start gap-4">
-                    <span
-                      className="font-ui text-[9px] tracking-[.18em] mt-1"
-                      style={{ color: selected ? item.accent : 'rgba(255,255,255,.28)' }}
-                    >
-                      0{index + 1}
-                    </span>
-                    <div>
-                      <p
-                        className="font-ui text-[9px] tracking-[.20em] uppercase"
-                        style={{ color: selected ? item.accent : 'rgba(255,255,255,.38)' }}
-                      >
-                        {item.eyebrow}
-                      </p>
-                      <strong className="block font-display uppercase text-lg md:text-xl text-white mt-1 leading-none">
-                        {item.title}
-                      </strong>
-                      <span className="block font-body text-xs text-white/42 mt-2 leading-snug">
-                        {item.chips.join(' · ')}
-                      </span>
-                    </div>
-                  </div>
-                </button>
-              )
-            })}
+                  {chip}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
 
-        <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-white/[.07] pt-6">
-          <p className="font-ui text-[9px] md:text-[10px] tracking-[.18em] uppercase text-white/35">
-            Choose a feature · the showcase cycles automatically
-          </p>
-          <a href={pageHref('/features')} className="btn-secondary no-underline">
-            Explore the whole game
-          </a>
+        <div className="home-command-showcase__footer">
+          <span className="home-command-showcase__pulse"><i /> 05 SYSTEMS LIVE</span>
+          <strong>{feature.label}</strong>
+          <span>Hover a feature · radar cycles automatically</span>
         </div>
       </div>
-    </div>,
+    </>,
     target,
   )
 }
