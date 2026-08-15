@@ -1,0 +1,38 @@
+.home-feature-node .home-command-node__shade::after {
+  background: linear-gradient(
+    115deg,
+    transparent 34%,
+    color-mix(in srgb, var(--node-accent) 44%, transparent) 49%,
+    color-mix(in srgb, var(--node-accent) 16%, transparent) 54%,
+    transparent 66%
+  );
+  opacity: .72;
+}
+
+.home-feature-node[data-active='true'] .home-command-node__shade::after {
+  opacity: .9;
+}
+
+.home-feature-node--partner[data-active='true'] {
+  border-color: #b86cff;
+  box-shadow:
+    0 28px 80px rgba(0,0,0,.5),
+    0 0 42px rgba(184,108,255,.30),
+    inset 0 0 28px rgba(184,108,255,.08);
+}
+
+.home-feature-node--partner[data-active='true'] > img {
+  filter: saturate(1.05) brightness(.84) contrast(1.05);
+}
+
+.home-feature-node--partner .home-command-node__shade {
+  background:
+    linear-gradient(to top, rgba(5,4,10,.95) 0%, rgba(5,4,10,.52) 42%, transparent 75%),
+    linear-gradient(120deg, transparent 42%, rgba(184,108,255,.14));
+}
+
+.home-feature-node--partner .home-command-node__open,
+.home-feature-node--partner .home-command-node__copy span,
+.home-feature-node--partner .home-command-node__signal i {
+  color: #b86cff;
+}
