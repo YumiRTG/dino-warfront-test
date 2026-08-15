@@ -296,7 +296,10 @@ export default function HomeModesNetworkPortal() {
           ))}
         </div>
 
-        <div className="home-feature-detail" style={{ ['--detail-accent' as string]: feature.accent }}>
+        <div
+          className={`home-feature-detail home-feature-detail--${feature.key}`}
+          style={{ ['--detail-accent' as string]: feature.accent }}
+        >
           <div className="home-feature-detail__image">
             <img key={feature.key} src={feature.img} alt="" style={{ objectPosition: feature.pos }} />
             <span aria-hidden />

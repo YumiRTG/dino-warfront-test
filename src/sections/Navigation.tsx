@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, NavLink, useSearchParams } from 'react-router'
+import { Link, NavLink, useLocation, useSearchParams } from 'react-router'
 import { useAuth } from '@/hooks/useAuth'
 import LoginModal from '@/components/LoginModal'
 import DinoMark from '@/components/DinoMark'
@@ -18,6 +18,7 @@ const navItems = [
 
 export default function Navigation() {
   const { session, logout, ready } = useAuth()
+  const { pathname } = useLocation()
   const [open, setOpen] = useState(false)
   const [loginOpen, setLoginOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
@@ -39,6 +40,13 @@ export default function Navigation() {
     if (params.get('login')) {
       params.delete('login')
       setParams(params, { replace: true })
+    }
+  }
+
+  const handleHomeClick = () => {
+    setOpen(false)
+    if (pathname === '/') {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
     }
   }
 
@@ -81,7 +89,7 @@ export default function Navigation() {
             <Link
               to="/"
               className="flex items-center gap-3 no-underline shrink-0 group"
-              onClick={() => setOpen(false)}
+              onClick={handleHomeClick}
             >
               <span className="relative text-[var(--gold)] group-hover:text-[var(--magma-glow)] transition-colors">
                 <span
@@ -106,6 +114,7 @@ export default function Navigation() {
                   key={item.to}
                   to={item.to}
                   end={item.to === '/'}
+                  onClick={item.to === '/' ? handleHomeClick : undefined}
                   className={({ isActive }) =>
                     `nav-link no-underline ${isActive ? 'nav-link-active' : ''}`
                   }
@@ -186,7 +195,7 @@ export default function Navigation() {
               <Link
                 key={item.to}
                 to={item.to}
-                onClick={() => setOpen(false)}
+                onClick={item.to === '/' ? handleHomeClick : () => setOpen(false)}
                 className="font-display text-4xl uppercase tracking-wide text-white no-underline hover:text-[var(--gold)] py-2 border-b border-white/5"
                 style={{ animation: `rise-in 0.4s ease ${i * 0.05}s both` }}
               >
