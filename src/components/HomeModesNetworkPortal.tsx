@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { asset } from '@/lib/assets'
 import './HomeModesNetworkPortal.css'
+import './HomeModesNetworkPortalFix.css'
 
 const FEATURES = [
   {
@@ -70,8 +71,8 @@ const FEATURES = [
     hook: 'You do not unlock a pet. You raise a partner.',
     img: asset('promo/partner-system-promo.jpg'),
     pos: 'center center',
-    accent: '#c78cff',
-    to: '/features/dinos',
+    accent: '#b86cff',
+    to: '/features/partner-system',
     chips: ['Hatch & bond', 'Grow together', 'March companion'],
   },
   {
@@ -85,7 +86,7 @@ const FEATURES = [
     img: asset('promo/worldboss-promo.jpg'),
     pos: 'center center',
     accent: '#ff8a38',
-    to: '/modes/world-map#world-boss',
+    to: '/features/world-boss',
     chips: ['Alliance hunt', 'Timed world event', 'Tiered rewards'],
   },
 ] as const
