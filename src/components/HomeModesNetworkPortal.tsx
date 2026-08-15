@@ -111,6 +111,10 @@ function pageHref(path: string) {
   return `${base}${path}`
 }
 
+function normalizedHeading(section: HTMLElement) {
+  return section.querySelector('h2')?.textContent?.replace(/\s+/g, ' ').trim().toLowerCase() || ''
+}
+
 export default function HomeModesNetworkPortal() {
   const [target, setTarget] = useState<HTMLElement | null>(null)
   const [active, setActive] = useState(0)
@@ -119,12 +123,32 @@ export default function HomeModesNetworkPortal() {
 
   useEffect(() => {
     const sections = Array.from(document.querySelectorAll<HTMLElement>('.home-exp-home > section'))
-    const section = sections.find((candidate) => {
-      const heading = candidate.querySelector('h2')?.textContent?.replace(/\s+/g, ' ').trim().toLowerCase()
-      return heading?.includes('four ways') && heading.includes('to fight')
+
+    const obsoleteSections = sections.filter((candidate) => {
+      const heading = normalizedHeading(candidate)
+      return (
+        heading.includes('built for domination') ||
+        heading.includes('build for dominion') ||
+        heading.includes('apex roster')
+      )
     })
 
-    if (!section) return
+    obsoleteSections.forEach((obsolete) => {
+      obsolete.hidden = true
+    })
+
+    const section = sections.find((candidate) => {
+      const heading = normalizedHeading(candidate)
+      return heading.includes('four ways') && heading.includes('to fight')
+    })
+
+    if (!section) {
+      return () => {
+        obsoleteSections.forEach((obsolete) => {
+          obsolete.hidden = false
+        })
+      }
+    }
 
     const originalChildren = Array.from(section.children) as HTMLElement[]
     const hadSectionBand = section.classList.contains('section-band')
@@ -141,6 +165,9 @@ export default function HomeModesNetworkPortal() {
     setTarget(section)
 
     return () => {
+      obsoleteSections.forEach((obsolete) => {
+        obsolete.hidden = false
+      })
       originalChildren.forEach((child) => {
         child.hidden = false
       })
