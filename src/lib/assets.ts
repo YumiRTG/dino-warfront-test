@@ -13,6 +13,10 @@ const HOMEPAGE_OPTIMIZED_ASSETS = new Set([
   'dino-dragon.png',
 ])
 
+const CACHE_BUSTED_ASSETS: Record<string, string> = {
+  'promo/partner-system-promo.jpg': 'promo/partner-system-promo-v2.jpg',
+}
+
 function shouldUseOptimizedAsset(path: string): boolean {
   return (
     import.meta.env.VITE_USE_OPTIMIZED_ASSETS === '1' &&
@@ -23,8 +27,9 @@ function shouldUseOptimizedAsset(path: string): boolean {
 export function asset(path: string): string {
   const base = import.meta.env.BASE_URL || '/'
   const clean = path.replace(/^\//, '')
-  const resolved = shouldUseOptimizedAsset(clean)
-    ? `optimized/${clean.replace(/\.png$/i, '.webp')}`
-    : clean
+  const cacheBusted = CACHE_BUSTED_ASSETS[clean] ?? clean
+  const resolved = shouldUseOptimizedAsset(cacheBusted)
+    ? `optimized/${cacheBusted.replace(/\.png$/i, '.webp')}`
+    : cacheBusted
   return `${base}${resolved}`
 }
