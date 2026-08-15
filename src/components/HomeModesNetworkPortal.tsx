@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Link } from 'react-router'
 import { MODES } from '@/config/modes'
 import { asset } from '@/lib/assets'
 
@@ -15,6 +14,13 @@ const CONNECTIONS = [
 
 function prefersReducedMotion() {
   return typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+}
+
+function pageHref(path: string) {
+  const base = import.meta.env.BASE_URL.endsWith('/')
+    ? import.meta.env.BASE_URL.slice(0, -1)
+    : import.meta.env.BASE_URL
+  return `${base}${path}`
 }
 
 export default function HomeModesNetworkPortal() {
@@ -55,7 +61,6 @@ export default function HomeModesNetworkPortal() {
       section.style.removeProperty('--command-accent')
       if (previousLabel === null) section.removeAttribute('aria-label')
       else section.setAttribute('aria-label', previousLabel)
-      setTarget(null)
     }
   }, [])
 
@@ -131,9 +136,9 @@ export default function HomeModesNetworkPortal() {
           </div>
 
           {MODES.map((mode, index) => (
-            <Link
+            <a
               key={mode.key}
-              to={mode.to}
+              href={pageHref(mode.to)}
               className={`home-command-node home-command-node--${SLOT_CLASSES[index]}`}
               data-active={active === index ? 'true' : undefined}
               style={{ ['--node-accent' as string]: mode.accent }}
@@ -157,7 +162,7 @@ export default function HomeModesNetworkPortal() {
                 <small>{mode.tagline}</small>
               </div>
               <b className="home-command-node__open">OPEN ↗</b>
-            </Link>
+            </a>
           ))}
         </div>
 
@@ -168,9 +173,9 @@ export default function HomeModesNetworkPortal() {
         </div>
 
         <div className="mt-8 flex justify-center">
-          <Link to="/modes" className="btn-secondary no-underline">
+          <a href={pageHref('/modes')} className="btn-secondary no-underline">
             Compare all four modes
-          </Link>
+          </a>
         </div>
       </div>
     </>,
