@@ -5,37 +5,37 @@ import '../pages/HomeTransitionsLab.css'
 
 const SCENES = [
   {
-    label: 'SEQUENCE 01',
-    kicker: 'The gates wake',
-    title: 'Your empire starts behind the walls.',
-    body: 'Production spins up, research queues begin and the city starts feeding an army that does not exist yet.',
+    label: 'FEATURE REVEAL 01',
+    kicker: 'Your city never really sleeps',
+    title: 'Log off. Your empire keeps moving.',
+    body: 'Production keeps feeding the city while you are away. Come back to resources, upgrades and the next decision already waiting — then turn that momentum into a stronger march.',
     img: asset('feature-base-hero.jpg'),
     pos: 'center 42%',
     accent: '#f0c14d',
-    stat: 'CITY ONLINE',
+    stat: 'OFFLINE PRODUCTION',
     to: '/features/base',
   },
   {
-    label: 'SEQUENCE 02',
-    kicker: 'The march leaves',
-    title: 'The safe part of the game ends at the gate.',
-    body: 'Marches cross the shared world to gather, scout, hunt, reinforce and collide with commanders who are doing the same thing at the same time.',
-    img: asset('modes/mode-world.jpg'),
-    pos: 'center 45%',
-    accent: '#38e8ff',
-    stat: '8000 × 8000',
-    to: '/modes/world-map',
+    label: 'FEATURE REVEAL 02',
+    kicker: 'Your roster has teeth',
+    title: 'Build a pack enemies learn to fear.',
+    body: 'Dinosaurs are not background decoration. Apex, tank, speed, control, defense and air roles give every roster a different identity — and every new beast changes what your army can become.',
+    img: asset('feature-dinos-hero.jpg'),
+    pos: 'center 48%',
+    accent: '#ff4d1a',
+    stat: 'APEX ROLES',
+    to: '/features/dinos',
   },
   {
-    label: 'SEQUENCE 03',
-    kicker: 'The front ignites',
-    title: 'Preparation becomes consequence.',
-    body: 'Arena pressure, campaign bosses, alliance conflict and defense maps turn the roster you built into decisions that have to survive contact.',
-    img: asset('modes/mode-arena.jpg'),
+    label: 'FEATURE REVEAL 03',
+    kicker: 'Every upgrade compounds',
+    title: 'Turn progression into a war machine.',
+    body: 'Heroes, research, resources and campaign progress are not isolated checklists. They feed the same army. Build smarter, unlock deeper layers and arrive at the next fight with something the other commander did not prepare for.',
+    img: asset('feature-heroes-hero.jpg'),
     pos: 'center center',
-    accent: '#ff4d1a',
-    stat: 'WARFRONT LIVE',
-    to: '/modes',
+    accent: '#38e8ff',
+    stat: 'BUILD YOUR META',
+    to: '/features',
   },
 ]
 
@@ -50,7 +50,7 @@ function prefersReducedMotion() {
 
 function chapterLabel(section: HTMLElement, index: number) {
   if (section.classList.contains('home-exp-hero')) return 'Opening'
-  if (section.classList.contains('home-exp-sequence')) return 'March to war'
+  if (section.classList.contains('home-exp-sequence')) return 'Why Warfront'
 
   const ornament = section.querySelector<HTMLElement>('.sec-ornament span, .eyebrow')?.textContent?.trim()
   if (ornament) return ornament.replace(/·/g, ' ').slice(0, 24)
@@ -325,7 +325,7 @@ export function HomeCinematicSequence() {
   }, [])
 
   return (
-    <section ref={sectionRef} className="home-exp-sequence" aria-label="From city to warfront">
+    <section ref={sectionRef} className="home-exp-sequence" aria-label="Features worth fighting for">
       <div className="home-exp-sequence__stage" aria-hidden>
         {SCENES.map((scene, index) => (
           <img
@@ -351,7 +351,7 @@ export function HomeCinematicSequence() {
           />
         )}
         <div className="home-exp-sequence__hud">
-          <span>TACTICAL FEED</span>
+          <span>WHY WARFRONT</span>
           <strong>{String(active + 1).padStart(2, '0')} / {String(SCENES.length).padStart(2, '0')}</strong>
         </div>
         <div className="home-exp-sequence__rail">
@@ -378,7 +378,7 @@ export function HomeCinematicSequence() {
               <p className="home-exp-sequence__kicker">{scene.kicker}</p>
               <h2>{scene.title}</h2>
               <p className="home-exp-sequence__body">{scene.body}</p>
-              <Link to={scene.to} className="home-exp-sequence__link">Open system <span>→</span></Link>
+              <Link to={scene.to} className="home-exp-sequence__link">See the feature <span>→</span></Link>
             </div>
           </article>
         ))}
