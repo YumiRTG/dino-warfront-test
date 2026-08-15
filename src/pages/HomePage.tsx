@@ -8,41 +8,6 @@ import WarRoom from '@/sections/WarRoom'
 import { HomeCinematicSequence, HomeExperienceFx, HomeIntro } from '@/components/HomeExperience'
 import './HomePage.css'
 
-const PILLARS = [
-  {
-    title: 'Build your base',
-    text: 'The plaza is only the first layer. Offline production feeds a city that never fully sleeps…',
-    hook: 'What you raise first decides how long you last.',
-    img: asset('feature-base-hero.jpg'),
-    pos: 'center 35%',
-    to: '/features/base',
-  },
-  {
-    title: 'Command heroes',
-    text: 'Nyra is the face of the tribe — not the whole war. Other legends wait behind the first ranks.',
-    hook: 'Open the roster. The real kits are deeper.',
-    img: asset('feature-heroes-hero.jpg'),
-    pos: 'center center',
-    to: '/features/heroes',
-  },
-  {
-    title: 'Tame dinosaurs',
-    text: 'You see the apex names. You do not yet see how they break a formation together.',
-    hook: 'Roles only make sense once you hunt.',
-    img: asset('feature-dinos-hero.jpg'),
-    pos: 'center center',
-    to: '/features/dinos',
-  },
-  {
-    title: 'Conquer campaigns',
-    text: 'Jungle first. Then ice, fire, water — each realm changes the cost of a mistake.',
-    hook: 'The map does not explain itself on page one.',
-    img: asset('feature-campaign-hero.jpg'),
-    pos: 'center 35%',
-    to: '/features/campaign',
-  },
-]
-
 const DINOS = [
   { name: 'Tyrannosaurus', img: asset('dino-tyranno.png'), role: 'Apex' },
   { name: 'Velociraptor', img: asset('dino-raptor.png'), role: 'Speed' },
@@ -62,7 +27,7 @@ export default function HomePage() {
     <div ref={motionRef} className="relative home-exp-home">
       <HomeExperienceFx />
       <HomeIntro replayToken={introToken} />
-      {/* ═══ HERO: title centered higher ═══ */}
+
       <section className="relative min-h-[100svh] overflow-hidden home-exp-hero">
         <img
           data-hero-bg
@@ -76,7 +41,6 @@ export default function HomePage() {
         <div className="home-exp-hero-sweep" aria-hidden />
         <div className="home-exp-hero-pulse" aria-hidden />
 
-        {/* Light top scrim for title only — bottom stays open for the T-rex */}
         <div
           className="absolute inset-0 z-[1] pointer-events-none"
           style={{
@@ -87,7 +51,6 @@ export default function HomePage() {
           }}
         />
 
-        {/* Title + CTAs higher so buttons don't sit on dinos */}
         <div className="absolute z-10 left-0 right-0 top-[18%] sm:top-[17%] md:top-[16%] container-dd flex flex-col items-center text-center">
           <p data-hero data-hero-delay="0.05" className="eyebrow mb-2 sm:mb-3 justify-center">
             Friend beta · Prehistoric strategy
@@ -143,13 +106,9 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ═══ LIVE SERVER STRIP ═══ */}
       <WarRoom />
-
-      {/* Cinematic bridge: original homepage continues below unchanged. */}
       <HomeCinematicSequence />
 
-      {/* ═══ STORY + APEX BEAST ═══ */}
       <section className="section-band relative overflow-hidden">
         <div
           className="absolute inset-0 opacity-40 pointer-events-none"
@@ -221,7 +180,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ═══ MARQUEE PACK ═══ */}
       <div className="dino-marquee-wrap relative py-4 border-y border-[var(--gold)]/10 overflow-hidden" aria-hidden>
         <div className="dino-marquee">
           {[...DINOS, ...DINOS].map((d, i) => (
@@ -233,7 +191,6 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* ═══ MAJOR MODES ═══ */}
       <section className="section-band relative overflow-hidden">
         <div
           className="absolute inset-0 pointer-events-none opacity-60"
@@ -313,146 +270,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ═══ FEATURES ═══ */}
-      <section
-        className="section-band relative"
-        style={{
-          background:
-            'linear-gradient(180deg, rgba(18,12,32,0.55) 0%, rgba(8,6,16,0.35) 100%)',
-        }}
-      >
-        <div className="container-dd">
-          <div
-            className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12"
-            data-reveal="up"
-          >
-            <div className="max-w-xl">
-              <div className="sec-ornament mb-4 max-w-[220px]">
-                <span>Systems</span>
-              </div>
-              <h2 className="display-lg text-white">
-                Built for
-                <br />
-                <span className="text-gradient-gold">domination</span>
-              </h2>
-            </div>
-            <p className="body-lg max-w-sm md:text-right">
-              Four doors. Each opens a deeper layer. Tap a card — the homepage
-              only shows the bait.
-            </p>
-          </div>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4" data-reveal-stagger>
-            {PILLARS.map((f, i) => {
-              const className = `dd-card group no-underline text-inherit ${i === 0 ? 'sm:col-span-2 lg:col-span-2' : ''}`
-              const body = (
-                <>
-                  <div
-                    className="relative overflow-hidden bg-[#0a0810]"
-                    style={{ aspectRatio: i === 0 ? '16 / 9' : '16 / 11' }}
-                  >
-                    <img
-                      src={f.img}
-                      alt={f.title}
-                      className="absolute inset-0 w-full h-full transition-transform duration-700 group-hover:scale-[1.06]"
-                      style={{ objectFit: 'cover', objectPosition: f.pos }}
-                      loading="lazy"
-                    />
-                    <div
-                      className="absolute inset-0 opacity-60"
-                      style={{
-                        background:
-                          'linear-gradient(to top, rgba(5,4,10,0.9) 0%, transparent 55%)',
-                      }}
-                    />
-                    <span className="absolute top-3 right-3 font-ui text-[9px] tracking-[0.18em] uppercase px-2.5 py-1 rounded-sm bg-black/50 border border-[var(--gold)]/30 text-[var(--gold)]">
-                      Open
-                    </span>
-                  </div>
-                  <div className="px-5 py-5">
-                    <h3 className="font-display text-xl text-white tracking-wide uppercase">
-                      {f.title}
-                    </h3>
-                    <p className="font-body text-sm text-[var(--bone-dim)] mt-2 leading-relaxed">
-                      {f.text}
-                    </p>
-                    <p className="font-body text-xs text-[var(--gold)]/80 mt-2 italic leading-relaxed">
-                      {f.hook}
-                    </p>
-                    <p className="font-ui text-[10px] tracking-[0.18em] uppercase text-[var(--gold)] mt-3">
-                      Open this layer →
-                    </p>
-                  </div>
-                </>
-              )
-              return (
-                <Link key={f.title} to={f.to} data-reveal-item className={className}>
-                  {body}
-                </Link>
-              )
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* ═══ LIVE LEADERBOARD ═══ */}
       <TopCommanders />
 
-      {/* ═══ DINO RAIL ═══ */}
-      <section className="section-band">
-        <div className="container-dd">
-          <div className="flex items-end justify-between gap-4 mb-6" data-reveal="up">
-            <div>
-              <div className="sec-ornament mb-3 max-w-[200px]">
-                <span>Bestiary</span>
-              </div>
-              <h2 className="display-md text-white">
-                Apex <span className="text-gradient-magma">roster</span>
-              </h2>
-              <p className="body-lg mt-3 max-w-md">
-                Surface names only. Full roles unlock when you advance.
-              </p>
-            </div>
-            <Link
-              to="/features/dinos"
-              className="font-ui text-[11px] tracking-[0.2em] uppercase text-[var(--gold)] no-underline hover:text-[var(--magma-glow)] shrink-0"
-            >
-              Unlock intel →
-            </Link>
-          </div>
-          <div className="char-rail" data-reveal-stagger>
-            {DINOS.map((d) => (
-              <Link
-                key={d.name}
-                to="/features/dinos"
-                className="char-rail-item dd-card group no-underline text-inherit"
-                data-reveal-item
-              >
-                <div className="aspect-[3/4] relative bg-[#0a0810] flex flex-col">
-                  <div className="flex-1 flex items-center justify-center p-2 min-h-0">
-                    <img
-                      src={d.img}
-                      alt={d.name}
-                      className="dino-fit w-full h-full max-h-[75%] transition-transform duration-500 group-hover:scale-105"
-                      loading="lazy"
-                    />
-                  </div>
-                  <div className="relative z-10 p-3 pt-0">
-                    <p className="font-ui text-[9px] tracking-[0.2em] uppercase text-[var(--gold)]">
-                      {d.role}
-                    </p>
-                    <p className="font-display text-sm text-white uppercase tracking-wide mt-0.5">
-                      {d.name}
-                    </p>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ═══ PLAY / REWARDS ═══ */}
       <section className="section-band relative overflow-hidden">
         <div
           className="absolute inset-0 opacity-25 pointer-events-none"
@@ -516,7 +335,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ═══ PROGRESS ═══ */}
       <section className="section-band">
         <div className="container-dd">
           <div
@@ -562,7 +380,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ═══ DOWNLOAD CTA ═══ */}
       <section className="section-band pb-28">
         <div className="container-dd">
           <div
