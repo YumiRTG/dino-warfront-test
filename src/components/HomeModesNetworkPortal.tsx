@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { asset } from '@/lib/assets'
+import './HomeModesNetworkPortal.css'
 
 const FEATURES = [
   {
