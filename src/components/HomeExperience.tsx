@@ -3,38 +3,32 @@ import { Link } from 'react-router'
 import { asset } from '@/lib/assets'
 import '../pages/HomeTransitionsLab.css'
 
-const SCENES = [
+const REEL = [
   {
-    label: 'FEATURE REVEAL 01',
-    kicker: 'Your city never really sleeps',
-    title: 'Log off. Your empire keeps moving.',
-    body: 'Production keeps feeding the city while you are away. Come back to resources, upgrades and the next decision already waiting — then turn that momentum into a stronger march.',
+    label: 'BUILD',
+    title: 'BUILD WHILE AWAY',
+    sub: 'Come back stronger than you left.',
     img: asset('feature-base-hero.jpg'),
     pos: 'center 42%',
     accent: '#f0c14d',
-    stat: 'OFFLINE PRODUCTION',
     to: '/features/base',
   },
   {
-    label: 'FEATURE REVEAL 02',
-    kicker: 'Your roster has teeth',
-    title: 'Build a pack enemies learn to fear.',
-    body: 'Dinosaurs are not background decoration. Apex, tank, speed, control, defense and air roles give every roster a different identity — and every new beast changes what your army can become.',
+    label: 'TAME',
+    title: 'UNLEASH THE PACK',
+    sub: 'Apex. Speed. Tank. Your formation changes.',
     img: asset('feature-dinos-hero.jpg'),
     pos: 'center 48%',
     accent: '#ff4d1a',
-    stat: 'APEX ROLES',
     to: '/features/dinos',
   },
   {
-    label: 'FEATURE REVEAL 03',
-    kicker: 'Every upgrade compounds',
-    title: 'Turn progression into a war machine.',
-    body: 'Heroes, research, resources and campaign progress are not isolated checklists. They feed the same army. Build smarter, unlock deeper layers and arrive at the next fight with something the other commander did not prepare for.',
+    label: 'POWER',
+    title: 'STACK THE ADVANTAGE',
+    sub: 'Heroes, research and bonds feed one army.',
     img: asset('feature-heroes-hero.jpg'),
     pos: 'center center',
     accent: '#38e8ff',
-    stat: 'BUILD YOUR META',
     to: '/features',
   },
 ]
@@ -64,11 +58,9 @@ function chapterLabel(section: HTMLElement, index: number) {
 export function HomeExperienceFx() {
   const [chapters, setChapters] = useState<JourneyChapter[]>([])
   const [activeChapter, setActiveChapter] = useState(0)
-  const [cutToken, setCutToken] = useState(0)
   const activeRef = useRef(0)
 
   useEffect(() => {
-    const reduced = prefersReducedMotion()
     const root = document.documentElement
     const sections = Array.from(document.querySelectorAll<HTMLElement>('.home-exp-home > section'))
       .filter((section) => section.getBoundingClientRect().height > 180)
@@ -77,71 +69,42 @@ export function HomeExperienceFx() {
       const id = section.id || `home-journey-${index + 1}`
       section.id = id
       section.classList.add('home-exp-chapter')
-      section.style.setProperty('--home-chapter-index', String(index))
     })
 
     setChapters(sections.map((section, index) => ({ id: section.id, label: chapterLabel(section, index) })))
 
-    const entranceObserver = new IntersectionObserver(
+    const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) (entry.target as HTMLElement).classList.add('home-exp-chapter-entered')
         })
       },
-      { rootMargin: '8% 0px -10% 0px', threshold: 0.06 },
+      { rootMargin: '5% 0px -8% 0px', threshold: 0.05 },
     )
-    sections.forEach((section) => entranceObserver.observe(section))
+    sections.forEach((section) => observer.observe(section))
 
     let raf = 0
-    let lastY = window.scrollY
-    let lastTime = performance.now()
-    let speedTimer = 0
-
     const paint = () => {
       raf = 0
-      const now = performance.now()
-      const currentY = window.scrollY
       const max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight)
-      const progress = Math.min(1, Math.max(0, currentY / max))
-      root.style.setProperty('--home-scroll', String(progress))
+      root.style.setProperty('--home-scroll', String(Math.min(1, Math.max(0, window.scrollY / max))))
 
-      const dt = Math.max(16, now - lastTime)
-      const velocity = Math.min(1, Math.abs(currentY - lastY) / dt / 1.8)
-      root.style.setProperty('--home-scroll-speed', String(velocity))
-      root.dataset.homeScrollDirection = currentY >= lastY ? 'down' : 'up'
-      lastY = currentY
-      lastTime = now
-
-      window.clearTimeout(speedTimer)
-      speedTimer = window.setTimeout(() => root.style.setProperty('--home-scroll-speed', '0'), 120)
-
-      if (sections.length) {
-        const viewportCenter = window.innerHeight * 0.5
-        let closest = 0
-        let closestDistance = Number.POSITIVE_INFINITY
-
-        sections.forEach((section, index) => {
-          const rect = section.getBoundingClientRect()
-          const sectionCenter = rect.top + Math.min(rect.height, window.innerHeight) * 0.5
-          const distance = Math.abs(sectionCenter - viewportCenter)
-          const local = Math.min(1, Math.max(0, (window.innerHeight - rect.top) / (window.innerHeight + rect.height)))
-          section.style.setProperty('--home-section-progress', String(local))
-
-          if (rect.bottom > 0 && rect.top < window.innerHeight && distance < closestDistance) {
-            closestDistance = distance
-            closest = index
-          }
-        })
-
-        if (closest !== activeRef.current) {
-          sections[activeRef.current]?.classList.remove('home-exp-chapter-active')
-          sections[closest]?.classList.add('home-exp-chapter-active')
-          activeRef.current = closest
-          setActiveChapter(closest)
-          if (!reduced) setCutToken((value) => value + 1)
-        } else {
-          sections[closest]?.classList.add('home-exp-chapter-active')
+      const center = window.innerHeight * 0.5
+      let closest = activeRef.current
+      let distance = Number.POSITIVE_INFINITY
+      sections.forEach((section, index) => {
+        const rect = section.getBoundingClientRect()
+        if (rect.bottom <= 0 || rect.top >= window.innerHeight) return
+        const d = Math.abs(rect.top + Math.min(rect.height, window.innerHeight) * 0.5 - center)
+        if (d < distance) {
+          distance = d
+          closest = index
         }
+      })
+
+      if (closest !== activeRef.current) {
+        activeRef.current = closest
+        setActiveChapter(closest)
       }
     }
 
@@ -150,27 +113,23 @@ export function HomeExperienceFx() {
     }
 
     const paintPointer = (event: PointerEvent) => {
-      if (event.pointerType === 'touch' || reduced) return
+      if (event.pointerType === 'touch' || prefersReducedMotion()) return
       root.style.setProperty('--home-pointer-x', `${event.clientX}px`)
       root.style.setProperty('--home-pointer-y', `${event.clientY}px`)
     }
 
     paint()
-    window.addEventListener('pointermove', paintPointer, { passive: true })
     window.addEventListener('scroll', schedulePaint, { passive: true })
     window.addEventListener('resize', schedulePaint, { passive: true })
+    window.addEventListener('pointermove', paintPointer, { passive: true })
 
     return () => {
       window.cancelAnimationFrame(raf)
-      window.clearTimeout(speedTimer)
-      entranceObserver.disconnect()
-      window.removeEventListener('pointermove', paintPointer)
+      observer.disconnect()
       window.removeEventListener('scroll', schedulePaint)
       window.removeEventListener('resize', schedulePaint)
-      sections.forEach((section) => {
-        section.classList.remove('home-exp-chapter', 'home-exp-chapter-entered', 'home-exp-chapter-active')
-        section.style.removeProperty('--home-section-progress')
-      })
+      window.removeEventListener('pointermove', paintPointer)
+      sections.forEach((section) => section.classList.remove('home-exp-chapter', 'home-exp-chapter-entered'))
     }
   }, [])
 
@@ -184,9 +143,6 @@ export function HomeExperienceFx() {
     <>
       <div className="home-exp-progress" aria-hidden><span /></div>
       <div className="home-exp-pointer" aria-hidden />
-      <div className="home-exp-scroll-energy" aria-hidden />
-      {cutToken > 0 && <div key={cutToken} className="home-exp-chapter-cut" aria-hidden />}
-
       {chapters.length > 3 && (
         <nav className="home-exp-journey" aria-label="Homepage journey">
           <div className="home-exp-journey__counter">
@@ -234,7 +190,7 @@ export function HomeIntro({ replayToken }: { replayToken: number }) {
     try {
       window.sessionStorage.setItem('dw-home-intro-v2', '1')
     } catch {
-      // Session storage can be blocked; the intro still works.
+      // Storage can be blocked; the intro still works.
     }
 
     const timer = window.setTimeout(() => setVisible(false), 3100)
@@ -261,12 +217,63 @@ export function HomeIntro({ replayToken }: { replayToken: number }) {
   )
 }
 
+function BaseVisual({ active }: { active: boolean }) {
+  return (
+    <div className="home-reel-demo home-reel-demo--base" data-active={active ? 'true' : undefined}>
+      <div className="home-reel-base-core">
+        <span className="home-reel-base-ring home-reel-base-ring--a" />
+        <span className="home-reel-base-ring home-reel-base-ring--b" />
+        <span className="home-reel-base-ping" />
+        <strong>BASE</strong>
+        <small>ONLINE</small>
+      </div>
+      <div className="home-reel-resource home-reel-resource--food"><small>FOOD</small><strong>+18K</strong></div>
+      <div className="home-reel-resource home-reel-resource--iron"><small>IRON</small><strong>+9.4K</strong></div>
+      <div className="home-reel-resource home-reel-resource--oil"><small>OIL</small><strong>+6.8K</strong></div>
+      <div className="home-reel-buildbar"><span>OFFLINE PRODUCTION</span><i /></div>
+    </div>
+  )
+}
+
+function PackVisual({ active }: { active: boolean }) {
+  return (
+    <div className="home-reel-demo home-reel-demo--pack" data-active={active ? 'true' : undefined}>
+      <div className="home-reel-dino home-reel-dino--raptor">
+        <img src={asset('dino-raptor.png')} alt="" />
+        <span>SPEED</span>
+      </div>
+      <div className="home-reel-dino home-reel-dino--rex">
+        <img src={asset('dino-tyranno.png')} alt="" />
+        <span>APEX</span>
+      </div>
+      <div className="home-reel-dino home-reel-dino--trike">
+        <img src={asset('dino-triceratops.png')} alt="" />
+        <span>TANK</span>
+      </div>
+      <div className="home-reel-pack-line"><i /><strong>PACK READY</strong><i /></div>
+    </div>
+  )
+}
+
+function PowerVisual({ active }: { active: boolean }) {
+  return (
+    <div className="home-reel-demo home-reel-demo--power" data-active={active ? 'true' : undefined}>
+      <div className="home-reel-power-number">
+        <small>ARMY POWER</small>
+        <strong>2.4M</strong>
+        <span>▲ 18.6%</span>
+      </div>
+      <div className="home-reel-stack home-reel-stack--hero"><span>HERO</span><i><b /></i><strong>84</strong></div>
+      <div className="home-reel-stack home-reel-stack--research"><span>RESEARCH</span><i><b /></i><strong>71</strong></div>
+      <div className="home-reel-stack home-reel-stack--bond"><span>DINO BOND</span><i><b /></i><strong>93</strong></div>
+      <div className="home-reel-power-burst" />
+    </div>
+  )
+}
+
 export function HomeCinematicSequence() {
   const [active, setActive] = useState(0)
-  const [scenePulse, setScenePulse] = useState(0)
   const refs = useRef<Array<HTMLElement | null>>([])
-  const sectionRef = useRef<HTMLElement | null>(null)
-  const previousActive = useRef(0)
 
   useEffect(() => {
     if (prefersReducedMotion()) return
@@ -277,110 +284,58 @@ export function HomeCinematicSequence() {
           .filter((entry) => entry.isIntersecting)
           .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0]
         if (!visible) return
-        const index = Number((visible.target as HTMLElement).dataset.sceneIndex || 0)
-        setActive(index)
+        setActive(Number((visible.target as HTMLElement).dataset.sceneIndex || 0))
       },
-      { rootMargin: '-20% 0px -20% 0px', threshold: [0.18, 0.4, 0.62] },
+      { rootMargin: '-28% 0px -28% 0px', threshold: [0.15, 0.35, 0.55] },
     )
 
     refs.current.forEach((node) => node && observer.observe(node))
     return () => observer.disconnect()
   }, [])
 
-  useEffect(() => {
-    if (active !== previousActive.current) {
-      previousActive.current = active
-      setScenePulse((value) => value + 1)
-    }
-  }, [active])
-
-  useEffect(() => {
-    if (prefersReducedMotion()) return
-    let raf = 0
-
-    const paintDepth = () => {
-      raf = 0
-      const section = sectionRef.current
-      if (!section) return
-      const rect = section.getBoundingClientRect()
-      const total = Math.max(1, rect.height - window.innerHeight)
-      const local = Math.min(1, Math.max(0, -rect.top / total))
-      const shift = (local - 0.5) * -28
-      section.style.setProperty('--sequence-shift', `${shift.toFixed(1)}px`)
-      section.style.setProperty('--sequence-progress', String(local))
-    }
-
-    const schedule = () => {
-      if (!raf) raf = window.requestAnimationFrame(paintDepth)
-    }
-
-    paintDepth()
-    window.addEventListener('scroll', schedule, { passive: true })
-    window.addEventListener('resize', schedule, { passive: true })
-    return () => {
-      window.cancelAnimationFrame(raf)
-      window.removeEventListener('scroll', schedule)
-      window.removeEventListener('resize', schedule)
-    }
-  }, [])
-
   return (
-    <section ref={sectionRef} className="home-exp-sequence" aria-label="Features worth fighting for">
-      <div className="home-exp-sequence__stage" aria-hidden>
-        {SCENES.map((scene, index) => (
-          <img
-            key={scene.label}
-            src={scene.img}
-            alt=""
-            loading={index === 0 ? 'eager' : 'lazy'}
-            decoding="async"
-            className="home-exp-sequence__image"
-            data-active={active === index ? 'true' : undefined}
-            style={{ objectPosition: scene.pos }}
-          />
-        ))}
-        <div className="home-exp-sequence__shade" />
-        <div className="home-exp-sequence__grid" />
-        <div className="home-exp-sequence__scan" />
-        <div className="home-exp-sequence__vignette" />
-        {scenePulse > 0 && (
-          <div
-            key={scenePulse}
-            className="home-exp-sequence__wipe"
-            style={{ ['--scene-accent' as string]: SCENES[active].accent }}
-          />
-        )}
-        <div className="home-exp-sequence__hud">
-          <span>WHY WARFRONT</span>
-          <strong>{String(active + 1).padStart(2, '0')} / {String(SCENES.length).padStart(2, '0')}</strong>
-        </div>
-        <div className="home-exp-sequence__rail">
-          {SCENES.map((scene, index) => (
-            <span key={scene.label} data-active={active === index ? 'true' : undefined} />
+    <section className="home-exp-sequence" aria-label="Why Dino Warfront">
+      <div className="home-exp-sequence__stage">
+        <div className="home-reel-bg" aria-hidden>
+          {REEL.map((scene, index) => (
+            <img
+              key={scene.label}
+              src={scene.img}
+              alt=""
+              loading={index === 0 ? 'eager' : 'lazy'}
+              decoding="async"
+              data-active={active === index ? 'true' : undefined}
+              style={{ objectPosition: scene.pos }}
+            />
           ))}
+          <div className="home-reel-bg__shade" />
+          <div className="home-reel-bg__grid" />
+        </div>
+
+        <BaseVisual active={active === 0} />
+        <PackVisual active={active === 1} />
+        <PowerVisual active={active === 2} />
+
+        <div className="home-reel-copy" key={active} style={{ ['--reel-accent' as string]: REEL[active].accent }}>
+          <p>{REEL[active].label}</p>
+          <h2>{REEL[active].title}</h2>
+          <span>{REEL[active].sub}</span>
+          <Link to={REEL[active].to}>Explore <b>→</b></Link>
+        </div>
+
+        <div className="home-reel-progress" aria-hidden>
+          {REEL.map((scene, index) => <span key={scene.label} data-active={active === index ? 'true' : undefined} />)}
         </div>
       </div>
 
-      <div className="home-exp-sequence__chapters">
-        {SCENES.map((scene, index) => (
-          <article
+      <div className="home-exp-sequence__chapters" aria-hidden>
+        {REEL.map((scene, index) => (
+          <div
             key={scene.label}
             ref={(node) => { refs.current[index] = node }}
             data-scene-index={index}
             className="home-exp-sequence__chapter"
-            style={{ ['--scene-accent' as string]: scene.accent }}
-          >
-            <div className="home-exp-sequence__copy" data-active={active === index ? 'true' : undefined}>
-              <div className="home-exp-sequence__signal">
-                <span>{scene.label}</span>
-                <strong>{scene.stat}</strong>
-              </div>
-              <p className="home-exp-sequence__kicker">{scene.kicker}</p>
-              <h2>{scene.title}</h2>
-              <p className="home-exp-sequence__body">{scene.body}</p>
-              <Link to={scene.to} className="home-exp-sequence__link">See the feature <span>→</span></Link>
-            </div>
-          </article>
+          />
         ))}
       </div>
     </section>
