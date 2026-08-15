@@ -13,23 +13,6 @@
   opacity: .9;
 }
 
-/*
- * Keep every gameplay card on the same interaction model.
- * Partner gets its violet identity from --node-accent (#b86cff) in the component,
- * instead of stacking special hover/active overrides that can fight the base card
- * transition after mouseleave.
- */
-.home-feature-node--partner .home-command-node__shade::after {
-  background: linear-gradient(
-    115deg,
-    transparent 34%,
-    color-mix(in srgb, var(--node-accent) 48%, transparent) 49%,
-    color-mix(in srgb, var(--node-accent) 18%, transparent) 55%,
-    transparent 66%
-  ) !important;
-  border-color: transparent !important;
-}
-
 .home-feature-detail--partner .home-feature-detail__copy h3 {
   color: var(--detail-accent);
   text-shadow: 0 0 24px color-mix(in srgb, var(--detail-accent) 28%, transparent);
