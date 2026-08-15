@@ -1,0 +1,51 @@
+.home-feature-command-board {
+  min-height: 40rem;
+}
+
+.home-command-node--partner {
+  left: 38%;
+  bottom: 2%;
+  width: 24%;
+  height: 25%;
+  transform-origin: center top;
+}
+
+.home-command-node--partner > img {
+  object-fit: cover;
+}
+
+@media (max-width: 1100px) {
+  .home-feature-command-board {
+    min-height: 37rem;
+  }
+
+  .home-command-node--partner {
+    left: 37%;
+    width: 26%;
+  }
+}
+
+@media (max-width: 800px) {
+  .home-feature-command-board {
+    min-height: 0;
+  }
+
+  .home-command-node--partner {
+    position: relative;
+    inset: auto;
+    width: auto;
+    height: 10.5rem;
+    transform: none;
+    transform-origin: center;
+  }
+
+  .home-command-node--partner[data-active='true'] {
+    transform: scale(1.025);
+  }
+}
+
+@media (max-width: 470px) {
+  .home-command-node--partner {
+    height: 9.5rem;
+  }
+}
