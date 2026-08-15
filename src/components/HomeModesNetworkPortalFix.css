@@ -13,16 +13,19 @@
   opacity: .9;
 }
 
+.home-feature-node--partner,
+.home-feature-node--partner:hover,
 .home-feature-node--partner[data-active='true'] {
-  border-color: #b86cff;
+  border-color: rgba(184,108,255,.82) !important;
   box-shadow:
     0 28px 80px rgba(0,0,0,.5),
     0 0 42px rgba(184,108,255,.30),
-    inset 0 0 28px rgba(184,108,255,.08);
+    inset 0 0 28px rgba(184,108,255,.08) !important;
 }
 
+.home-feature-node--partner:hover > img,
 .home-feature-node--partner[data-active='true'] > img {
-  filter: saturate(1.05) brightness(.84) contrast(1.05);
+  filter: saturate(1.05) brightness(.84) contrast(1.05) !important;
 }
 
 .home-feature-node--partner .home-command-node__shade {
@@ -31,8 +34,36 @@
     linear-gradient(120deg, transparent 42%, rgba(184,108,255,.14));
 }
 
+/* Partner must never use the generic white command-card glint. */
+.home-feature-node--partner .home-command-node__shade::after,
+.home-feature-node--partner:hover .home-command-node__shade::after,
+.home-feature-node--partner[data-active='true'] .home-command-node__shade::after {
+  background: linear-gradient(
+    115deg,
+    transparent 32%,
+    rgba(184,108,255,.08) 42%,
+    rgba(184,108,255,.52) 50%,
+    rgba(184,108,255,.16) 57%,
+    transparent 68%
+  ) !important;
+  border-color: transparent !important;
+}
+
 .home-feature-node--partner .home-command-node__open,
+.home-feature-node--partner:hover .home-command-node__open,
+.home-feature-node--partner[data-active='true'] .home-command-node__open,
 .home-feature-node--partner .home-command-node__copy span,
-.home-feature-node--partner .home-command-node__signal i {
-  color: #b86cff;
+.home-feature-node--partner .home-command-node__signal i,
+.home-feature-node--partner:hover .home-command-node__copy strong,
+.home-feature-node--partner[data-active='true'] .home-command-node__copy strong,
+.home-feature-node--partner:hover .home-feature-node__index,
+.home-feature-node--partner[data-active='true'] .home-feature-node__index {
+  color: #b86cff !important;
+}
+
+.home-feature-node--partner:hover .home-command-node__open,
+.home-feature-node--partner[data-active='true'] .home-command-node__open {
+  border-color: rgba(184,108,255,.72) !important;
+  background: rgba(35,12,55,.72) !important;
+  box-shadow: 0 0 18px rgba(184,108,255,.16);
 }
