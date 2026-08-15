@@ -1,0 +1,373 @@
+/* DINO WARFRONT — transition lab
+   Makes the long homepage feel like one continuous journey without removing content. */
+
+.home-exp-home {
+  --home-scroll-speed: 0;
+}
+
+/* Scroll-speed energy appears only while the user moves quickly. */
+.home-exp-scroll-energy {
+  position: fixed;
+  z-index: 120;
+  inset: 0;
+  pointer-events: none;
+  opacity: calc(var(--home-scroll-speed) * .34);
+  background:
+    repeating-linear-gradient(112deg, transparent 0 8vw, rgba(255,255,255,.055) 8.08vw 8.13vw, transparent 8.2vw 16vw),
+    radial-gradient(circle at 70% 45%, rgba(255,77,26,.16), transparent 35%);
+  mix-blend-mode: screen;
+  transition: opacity .16s ease-out;
+  mask-image: linear-gradient(to bottom, transparent 2%, black 18%, black 82%, transparent 98%);
+}
+
+/* Short, restrained cut between major homepage chapters. */
+.home-exp-chapter-cut {
+  position: fixed;
+  z-index: 135;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  animation: home-chapter-cut-shell .72s linear forwards;
+}
+
+.home-exp-chapter-cut::before {
+  content: '';
+  position: absolute;
+  inset: -20% -25%;
+  background:
+    linear-gradient(104deg,
+      transparent 35%,
+      rgba(240,193,77,.06) 43%,
+      rgba(255,77,26,.18) 49%,
+      rgba(255,255,255,.13) 50%,
+      rgba(56,232,255,.08) 51%,
+      rgba(255,77,26,.08) 57%,
+      transparent 65%);
+  transform: translateX(-80%) skewX(-9deg);
+  animation: home-chapter-cut-sweep .72s cubic-bezier(.55,.04,.22,1) forwards;
+  mix-blend-mode: screen;
+}
+
+.home-exp-chapter-cut::after {
+  content: '';
+  position: absolute;
+  left: -10%;
+  right: -10%;
+  top: 50%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(240,193,77,.7), rgba(255,77,26,.9), transparent);
+  box-shadow: 0 0 22px rgba(255,77,26,.45);
+  transform: scaleX(0);
+  animation: home-chapter-cut-line .48s ease-out forwards;
+}
+
+/* Desktop journey HUD gives the long page a visible structure. */
+.home-exp-journey {
+  position: fixed;
+  z-index: 130;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 9.5rem;
+  display: grid;
+  justify-items: end;
+  gap: .65rem;
+  pointer-events: none;
+}
+
+.home-exp-journey__counter {
+  display: flex;
+  align-items: baseline;
+  gap: .2rem;
+  margin-right: .2rem;
+  font-family: 'Oswald', sans-serif;
+  letter-spacing: .16em;
+  color: rgba(255,255,255,.28);
+}
+
+.home-exp-journey__counter strong {
+  font-size: .82rem;
+  color: var(--gold);
+}
+
+.home-exp-journey__counter span { font-size: .55rem; }
+
+.home-exp-journey__rail {
+  display: grid;
+  gap: .12rem;
+  justify-items: end;
+}
+
+.home-exp-journey__step {
+  pointer-events: auto;
+  position: relative;
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  gap: .55rem;
+  min-height: 1.35rem;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: rgba(255,255,255,.42);
+  cursor: pointer;
+}
+
+.home-exp-journey__dot {
+  display: block;
+  width: 1.7rem;
+  height: 1px;
+  background: rgba(255,255,255,.18);
+  transition: width .35s cubic-bezier(.22,1,.36,1), background .3s ease, box-shadow .3s ease;
+}
+
+.home-exp-journey__label {
+  max-width: 0;
+  overflow: hidden;
+  opacity: 0;
+  white-space: nowrap;
+  font-family: 'Oswald', sans-serif;
+  font-size: .55rem;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  transform: translateX(.4rem);
+  transition: max-width .35s ease, opacity .25s ease, transform .35s ease;
+}
+
+.home-exp-journey__step:hover .home-exp-journey__label,
+.home-exp-journey__step[data-active='true'] .home-exp-journey__label {
+  max-width: 7rem;
+  opacity: .82;
+  transform: translateX(0);
+}
+
+.home-exp-journey__step[data-active='true'] .home-exp-journey__dot {
+  width: 2.7rem;
+  background: linear-gradient(90deg, var(--gold), var(--magma));
+  box-shadow: 0 0 14px rgba(255,77,26,.42);
+}
+
+.home-exp-journey__step[data-active='true'] { color: var(--gold); }
+
+/* Section content now arrives as a chapter instead of just appearing below the fold. */
+.home-exp-chapter:not(.home-exp-hero):not(.home-exp-sequence) > .container-dd {
+  opacity: .72;
+  transform: translate3d(0, 34px, 0) scale(.992);
+  filter: saturate(.9);
+  transition:
+    opacity .8s cubic-bezier(.22,1,.36,1),
+    transform .9s cubic-bezier(.22,1,.36,1),
+    filter .8s ease;
+}
+
+.home-exp-chapter-entered:not(.home-exp-hero):not(.home-exp-sequence) > .container-dd {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+  filter: saturate(1);
+}
+
+.home-exp-chapter .sec-ornament::before,
+.home-exp-chapter .sec-ornament::after {
+  transform: scaleX(.22);
+  transition: transform 1s cubic-bezier(.22,1,.36,1) .18s;
+}
+
+.home-exp-chapter-entered .sec-ornament::before,
+.home-exp-chapter-entered .sec-ornament::after {
+  transform: scaleX(1);
+}
+
+/* Cards rise in slight waves, giving long grids rhythm. */
+.home-exp-chapter-entered [data-reveal-stagger] > :nth-child(2) { transition-delay: .06s; }
+.home-exp-chapter-entered [data-reveal-stagger] > :nth-child(3) { transition-delay: .12s; }
+.home-exp-chapter-entered [data-reveal-stagger] > :nth-child(4) { transition-delay: .18s; }
+
+/* Compress the existing sticky sequence by about 20% while keeping all three scenes. */
+.home-exp-sequence {
+  min-height: 240svh;
+  --sequence-shift: 0px;
+  --sequence-progress: 0;
+}
+
+.home-exp-sequence__chapter {
+  min-height: 80svh;
+}
+
+.home-exp-sequence__image {
+  transform: scale(1.115) translate3d(0, var(--sequence-shift), 0);
+  filter: saturate(.72) brightness(.64) blur(1px);
+  transition:
+    opacity .72s cubic-bezier(.22,1,.36,1),
+    transform 1.3s cubic-bezier(.22,1,.36,1),
+    filter .72s ease;
+}
+
+.home-exp-sequence__image[data-active='true'] {
+  transform: scale(1.045) translate3d(0, var(--sequence-shift), 0);
+  filter: saturate(1.08) brightness(.9) blur(0);
+}
+
+.home-exp-sequence__vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  box-shadow: inset 0 0 15vw rgba(0,0,0,.5);
+  background:
+    radial-gradient(circle at 72% 46%, transparent 0 22%, rgba(5,4,10,.12) 48%, rgba(5,4,10,.5) 100%);
+}
+
+/* Scene changes now have a tactical shutter/wipe instead of only a crossfade. */
+.home-exp-sequence__wipe {
+  position: absolute;
+  z-index: 4;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  animation: home-sequence-wipe-shell .76s linear forwards;
+}
+
+.home-exp-sequence__wipe::before {
+  content: '';
+  position: absolute;
+  inset: -20% -35%;
+  background: linear-gradient(108deg,
+    transparent 34%,
+    color-mix(in srgb, var(--scene-accent) 18%, transparent) 44%,
+    color-mix(in srgb, var(--scene-accent) 62%, white 8%) 49.5%,
+    rgba(255,255,255,.22) 50%,
+    color-mix(in srgb, var(--scene-accent) 40%, transparent) 53%,
+    transparent 64%);
+  transform: translateX(-72%) skewX(-8deg);
+  animation: home-sequence-wipe .76s cubic-bezier(.7,0,.2,1) forwards;
+  mix-blend-mode: screen;
+}
+
+.home-exp-sequence__copy {
+  clip-path: inset(0 0 0 0);
+  transition:
+    opacity .5s ease,
+    transform .72s cubic-bezier(.22,1,.36,1),
+    filter .55s ease;
+  filter: blur(2px);
+}
+
+.home-exp-sequence__copy[data-active='true'] {
+  filter: blur(0);
+  animation: home-sequence-copy-in .72s cubic-bezier(.22,1,.36,1) both;
+}
+
+.home-exp-sequence__signal::after {
+  content: '';
+  width: min(9rem, 18vw);
+  height: 1px;
+  margin-left: .25rem;
+  background: linear-gradient(90deg, var(--scene-accent), transparent);
+  transform-origin: left;
+  animation: home-signal-breathe 2.2s ease-in-out infinite;
+}
+
+.home-exp-sequence__rail span[data-active='true'] {
+  animation: home-rail-pulse 1.8s ease-in-out infinite;
+}
+
+/* Existing cards get a more tactile cinematic response without changing layout. */
+.home-exp-home .mode-tile,
+.home-exp-home .dd-card,
+.home-exp-apex-card {
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .home-exp-home .mode-tile:hover,
+  .home-exp-home .dd-card:hover {
+    transform: perspective(900px) translateY(-9px) rotateX(1.2deg) scale(1.018);
+  }
+
+  .home-exp-home .mode-tile:hover .mode-tile__img,
+  .home-exp-home .dd-card:hover img {
+    transform: scale(1.075) translateY(-.5%);
+  }
+}
+
+@keyframes home-chapter-cut-shell {
+  0%, 100% { background: transparent; }
+  48% { background: rgba(5,4,10,.07); }
+}
+
+@keyframes home-chapter-cut-sweep {
+  0% { transform: translateX(-82%) skewX(-9deg); opacity: 0; }
+  18% { opacity: .75; }
+  72% { opacity: .62; }
+  100% { transform: translateX(82%) skewX(-9deg); opacity: 0; }
+}
+
+@keyframes home-chapter-cut-line {
+  0% { transform: scaleX(0); opacity: 0; }
+  42% { transform: scaleX(1); opacity: .72; }
+  100% { transform: scaleX(.15); opacity: 0; }
+}
+
+@keyframes home-sequence-wipe-shell {
+  0%, 100% { background: transparent; }
+  50% { background: rgba(5,4,10,.035); }
+}
+
+@keyframes home-sequence-wipe {
+  0% { transform: translateX(-72%) skewX(-8deg); opacity: 0; }
+  15% { opacity: .95; }
+  72% { opacity: .72; }
+  100% { transform: translateX(72%) skewX(-8deg); opacity: 0; }
+}
+
+@keyframes home-sequence-copy-in {
+  0% { opacity: .2; transform: translateY(32px) translateX(-14px); clip-path: inset(0 0 100% 0); }
+  45% { opacity: .85; clip-path: inset(0 0 0 0); }
+  100% { opacity: 1; transform: translateY(0) translateX(0); clip-path: inset(0 0 0 0); }
+}
+
+@keyframes home-signal-breathe {
+  0%, 100% { transform: scaleX(.25); opacity: .25; }
+  50% { transform: scaleX(1); opacity: .9; }
+}
+
+@keyframes home-rail-pulse {
+  0%, 100% { box-shadow: 0 0 10px rgba(240,193,77,.28); }
+  50% { box-shadow: 0 0 24px rgba(240,193,77,.7); }
+}
+
+@media (max-width: 1100px) {
+  .home-exp-journey { display: none; }
+}
+
+@media (max-width: 640px) {
+  .home-exp-sequence { min-height: 225svh; }
+  .home-exp-sequence__chapter { min-height: 75svh; }
+  .home-exp-scroll-energy { display: none; }
+  .home-exp-chapter-cut::before { inset-left: -50%; inset-right: -50%; }
+  .home-exp-sequence__wipe::before { inset-left: -55%; inset-right: -55%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-exp-scroll-energy,
+  .home-exp-chapter-cut,
+  .home-exp-journey,
+  .home-exp-sequence__wipe { display: none !important; }
+
+  .home-exp-chapter:not(.home-exp-hero):not(.home-exp-sequence) > .container-dd,
+  .home-exp-chapter-entered:not(.home-exp-hero):not(.home-exp-sequence) > .container-dd,
+  .home-exp-sequence__image,
+  .home-exp-sequence__image[data-active='true'],
+  .home-exp-sequence__copy,
+  .home-exp-sequence__copy[data-active='true'] {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    animation: none !important;
+  }
+
+  .home-exp-sequence__signal::after,
+  .home-exp-sequence__rail span[data-active='true'] {
+    animation: none !important;
+  }
+}
