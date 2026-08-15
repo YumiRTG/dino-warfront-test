@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router'
 import { asset } from '@/lib/assets'
+import '../pages/HomeTransitionsLab.css'
 
 const SCENES = [
   {
@@ -38,49 +39,178 @@ const SCENES = [
   },
 ]
 
+type JourneyChapter = {
+  id: string
+  label: string
+}
+
 function prefersReducedMotion() {
   return typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
 }
 
-export function HomeExperienceFx() {
-  useEffect(() => {
-    if (prefersReducedMotion()) return
+function chapterLabel(section: HTMLElement, index: number) {
+  if (section.classList.contains('home-exp-hero')) return 'Opening'
+  if (section.classList.contains('home-exp-sequence')) return 'March to war'
 
+  const ornament = section.querySelector<HTMLElement>('.sec-ornament span, .eyebrow')?.textContent?.trim()
+  if (ornament) return ornament.replace(/·/g, ' ').slice(0, 24)
+
+  const heading = section.querySelector<HTMLElement>('h2, h1')?.textContent?.replace(/\s+/g, ' ').trim()
+  if (heading) return heading.slice(0, 24)
+
+  return `Chapter ${String(index + 1).padStart(2, '0')}`
+}
+
+export function HomeExperienceFx() {
+  const [chapters, setChapters] = useState<JourneyChapter[]>([])
+  const [activeChapter, setActiveChapter] = useState(0)
+  const [cutToken, setCutToken] = useState(0)
+  const activeRef = useRef(0)
+
+  useEffect(() => {
+    const reduced = prefersReducedMotion()
     const root = document.documentElement
+    const sections = Array.from(document.querySelectorAll<HTMLElement>('.home-exp-home > section'))
+      .filter((section) => section.getBoundingClientRect().height > 180)
+
+    sections.forEach((section, index) => {
+      const id = section.id || `home-journey-${index + 1}`
+      section.id = id
+      section.classList.add('home-exp-chapter')
+      section.style.setProperty('--home-chapter-index', String(index))
+    })
+
+    setChapters(sections.map((section, index) => ({ id: section.id, label: chapterLabel(section, index) })))
+
+    const entranceObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) (entry.target as HTMLElement).classList.add('home-exp-chapter-entered')
+        })
+      },
+      { rootMargin: '8% 0px -10% 0px', threshold: 0.06 },
+    )
+    sections.forEach((section) => entranceObserver.observe(section))
+
     let raf = 0
+    let lastY = window.scrollY
+    let lastTime = performance.now()
+    let speedTimer = 0
+
+    const paint = () => {
+      raf = 0
+      const now = performance.now()
+      const currentY = window.scrollY
+      const max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight)
+      const progress = Math.min(1, Math.max(0, currentY / max))
+      root.style.setProperty('--home-scroll', String(progress))
+
+      const dt = Math.max(16, now - lastTime)
+      const velocity = Math.min(1, Math.abs(currentY - lastY) / dt / 1.8)
+      root.style.setProperty('--home-scroll-speed', String(velocity))
+      root.dataset.homeScrollDirection = currentY >= lastY ? 'down' : 'up'
+      lastY = currentY
+      lastTime = now
+
+      window.clearTimeout(speedTimer)
+      speedTimer = window.setTimeout(() => root.style.setProperty('--home-scroll-speed', '0'), 120)
+
+      if (sections.length) {
+        const viewportCenter = window.innerHeight * 0.5
+        let closest = 0
+        let closestDistance = Number.POSITIVE_INFINITY
+
+        sections.forEach((section, index) => {
+          const rect = section.getBoundingClientRect()
+          const sectionCenter = rect.top + Math.min(rect.height, window.innerHeight) * 0.5
+          const distance = Math.abs(sectionCenter - viewportCenter)
+          const local = Math.min(1, Math.max(0, (window.innerHeight - rect.top) / (window.innerHeight + rect.height)))
+          section.style.setProperty('--home-section-progress', String(local))
+
+          if (rect.bottom > 0 && rect.top < window.innerHeight && distance < closestDistance) {
+            closestDistance = distance
+            closest = index
+          }
+        })
+
+        if (closest !== activeRef.current) {
+          sections[activeRef.current]?.classList.remove('home-exp-chapter-active')
+          sections[closest]?.classList.add('home-exp-chapter-active')
+          activeRef.current = closest
+          setActiveChapter(closest)
+          if (!reduced) setCutToken((value) => value + 1)
+        } else {
+          sections[closest]?.classList.add('home-exp-chapter-active')
+        }
+      }
+    }
+
+    const schedulePaint = () => {
+      if (!raf) raf = window.requestAnimationFrame(paint)
+    }
 
     const paintPointer = (event: PointerEvent) => {
-      if (event.pointerType === 'touch') return
-      window.cancelAnimationFrame(raf)
-      raf = window.requestAnimationFrame(() => {
-        root.style.setProperty('--home-pointer-x', `${event.clientX}px`)
-        root.style.setProperty('--home-pointer-y', `${event.clientY}px`)
-      })
+      if (event.pointerType === 'touch' || reduced) return
+      root.style.setProperty('--home-pointer-x', `${event.clientX}px`)
+      root.style.setProperty('--home-pointer-y', `${event.clientY}px`)
     }
 
-    const paintScroll = () => {
-      const max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight)
-      const progress = Math.min(1, Math.max(0, window.scrollY / max))
-      root.style.setProperty('--home-scroll', String(progress))
-    }
-
-    paintScroll()
+    paint()
     window.addEventListener('pointermove', paintPointer, { passive: true })
-    window.addEventListener('scroll', paintScroll, { passive: true })
-    window.addEventListener('resize', paintScroll, { passive: true })
+    window.addEventListener('scroll', schedulePaint, { passive: true })
+    window.addEventListener('resize', schedulePaint, { passive: true })
 
     return () => {
       window.cancelAnimationFrame(raf)
+      window.clearTimeout(speedTimer)
+      entranceObserver.disconnect()
       window.removeEventListener('pointermove', paintPointer)
-      window.removeEventListener('scroll', paintScroll)
-      window.removeEventListener('resize', paintScroll)
+      window.removeEventListener('scroll', schedulePaint)
+      window.removeEventListener('resize', schedulePaint)
+      sections.forEach((section) => {
+        section.classList.remove('home-exp-chapter', 'home-exp-chapter-entered', 'home-exp-chapter-active')
+        section.style.removeProperty('--home-section-progress')
+      })
     }
   }, [])
+
+  const jumpToChapter = (index: number) => {
+    const chapter = chapters[index]
+    if (!chapter) return
+    document.getElementById(chapter.id)?.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'start' })
+  }
 
   return (
     <>
       <div className="home-exp-progress" aria-hidden><span /></div>
       <div className="home-exp-pointer" aria-hidden />
+      <div className="home-exp-scroll-energy" aria-hidden />
+      {cutToken > 0 && <div key={cutToken} className="home-exp-chapter-cut" aria-hidden />}
+
+      {chapters.length > 3 && (
+        <nav className="home-exp-journey" aria-label="Homepage journey">
+          <div className="home-exp-journey__counter">
+            <strong>{String(activeChapter + 1).padStart(2, '0')}</strong>
+            <span>/ {String(chapters.length).padStart(2, '0')}</span>
+          </div>
+          <div className="home-exp-journey__rail">
+            {chapters.map((chapter, index) => (
+              <button
+                key={chapter.id}
+                type="button"
+                className="home-exp-journey__step"
+                data-active={index === activeChapter ? 'true' : undefined}
+                onClick={() => jumpToChapter(index)}
+                aria-label={`Jump to ${chapter.label}`}
+                aria-current={index === activeChapter ? 'step' : undefined}
+              >
+                <span className="home-exp-journey__dot" />
+                <span className="home-exp-journey__label">{chapter.label}</span>
+              </button>
+            ))}
+          </div>
+        </nav>
+      )}
     </>
   )
 }
@@ -133,7 +263,10 @@ export function HomeIntro({ replayToken }: { replayToken: number }) {
 
 export function HomeCinematicSequence() {
   const [active, setActive] = useState(0)
+  const [scenePulse, setScenePulse] = useState(0)
   const refs = useRef<Array<HTMLElement | null>>([])
+  const sectionRef = useRef<HTMLElement | null>(null)
+  const previousActive = useRef(0)
 
   useEffect(() => {
     if (prefersReducedMotion()) return
@@ -147,15 +280,52 @@ export function HomeCinematicSequence() {
         const index = Number((visible.target as HTMLElement).dataset.sceneIndex || 0)
         setActive(index)
       },
-      { rootMargin: '-18% 0px -18% 0px', threshold: [0.2, 0.45, 0.7] },
+      { rootMargin: '-20% 0px -20% 0px', threshold: [0.18, 0.4, 0.62] },
     )
 
     refs.current.forEach((node) => node && observer.observe(node))
     return () => observer.disconnect()
   }, [])
 
+  useEffect(() => {
+    if (active !== previousActive.current) {
+      previousActive.current = active
+      setScenePulse((value) => value + 1)
+    }
+  }, [active])
+
+  useEffect(() => {
+    if (prefersReducedMotion()) return
+    let raf = 0
+
+    const paintDepth = () => {
+      raf = 0
+      const section = sectionRef.current
+      if (!section) return
+      const rect = section.getBoundingClientRect()
+      const total = Math.max(1, rect.height - window.innerHeight)
+      const local = Math.min(1, Math.max(0, -rect.top / total))
+      const shift = (local - 0.5) * -28
+      section.style.setProperty('--sequence-shift', `${shift.toFixed(1)}px`)
+      section.style.setProperty('--sequence-progress', String(local))
+    }
+
+    const schedule = () => {
+      if (!raf) raf = window.requestAnimationFrame(paintDepth)
+    }
+
+    paintDepth()
+    window.addEventListener('scroll', schedule, { passive: true })
+    window.addEventListener('resize', schedule, { passive: true })
+    return () => {
+      window.cancelAnimationFrame(raf)
+      window.removeEventListener('scroll', schedule)
+      window.removeEventListener('resize', schedule)
+    }
+  }, [])
+
   return (
-    <section className="home-exp-sequence" aria-label="From city to warfront">
+    <section ref={sectionRef} className="home-exp-sequence" aria-label="From city to warfront">
       <div className="home-exp-sequence__stage" aria-hidden>
         {SCENES.map((scene, index) => (
           <img
@@ -172,6 +342,14 @@ export function HomeCinematicSequence() {
         <div className="home-exp-sequence__shade" />
         <div className="home-exp-sequence__grid" />
         <div className="home-exp-sequence__scan" />
+        <div className="home-exp-sequence__vignette" />
+        {scenePulse > 0 && (
+          <div
+            key={scenePulse}
+            className="home-exp-sequence__wipe"
+            style={{ ['--scene-accent' as string]: SCENES[active].accent }}
+          />
+        )}
         <div className="home-exp-sequence__hud">
           <span>TACTICAL FEED</span>
           <strong>{String(active + 1).padStart(2, '0')} / {String(SCENES.length).padStart(2, '0')}</strong>
