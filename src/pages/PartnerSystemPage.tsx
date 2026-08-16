@@ -18,16 +18,36 @@ export default function PartnerSystemPage() {
   return (
     <div ref={motionRef} className="page-shell">
       <div className="container-dd">
-        <section className="dd-card overflow-hidden" data-reveal="scale">
+        <section className="dd-card overflow-hidden">
           <div
             className="relative min-h-[34rem] md:min-h-[42rem] overflow-hidden partner-artwork-safe partner-system-hero-media"
             style={{
-              backgroundImage: `url(${partnerArtwork})`,
-              backgroundPosition: 'center center',
-              backgroundSize: 'cover',
-              backgroundRepeat: 'no-repeat',
+              backgroundColor: '#080710',
+              transform: 'none',
+              filter: 'none',
+              backfaceVisibility: 'visible',
+              WebkitBackfaceVisibility: 'visible',
+              willChange: 'auto',
             }}
           >
+            <img
+              src={partnerArtwork}
+              alt="A young dinosaur growing beside its human partner"
+              loading="eager"
+              decoding="async"
+              className="absolute inset-0 w-full h-full object-cover"
+              style={{
+                objectPosition: 'center center',
+                transform: 'none',
+                filter: 'none',
+                opacity: 1,
+                animation: 'none',
+                transition: 'none',
+                backfaceVisibility: 'visible',
+                WebkitBackfaceVisibility: 'visible',
+                willChange: 'auto',
+              }}
+            />
             <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(6,4,11,.96)_0%,rgba(6,4,11,.72)_38%,rgba(6,4,11,.12)_76%),linear-gradient(to_top,rgba(6,4,11,.96),transparent_60%)]" />
             <div className="absolute inset-x-0 bottom-0 p-6 md:p-12 max-w-3xl">
               <p className="eyebrow">Feature · Partner System</p>
