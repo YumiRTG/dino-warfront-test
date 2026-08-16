@@ -14,23 +14,33 @@
 }
 
 /*
- * Partner uses the same artwork, but it deliberately avoids the filtered / 3D
- * compositor path that could turn the image layer white in Firefox.
+ * Shared Partner artwork safety layer.
+ * Firefox can turn a filtered / transformed JPEG layer white after it is
+ * promoted to a compositor layer. Every Partner artwork surface uses this
+ * class so the fix is not limited to the small radar card.
  */
-.home-feature-node--partner,
-.home-feature-node--partner:hover,
-.home-feature-node--partner:focus-visible,
-.home-feature-node--partner[data-active='true'] {
-  transform: none !important;
+.partner-artwork-safe,
+.partner-artwork-safe:hover,
+.partner-artwork-safe:focus,
+.partner-artwork-safe:focus-visible,
+.partner-artwork-safe:focus-within,
+.partner-artwork-safe[data-active='true'] {
   filter: none !important;
   backface-visibility: visible !important;
   -webkit-backface-visibility: visible !important;
+  will-change: auto !important;
 }
 
-.home-feature-node--partner > img,
-.home-feature-node--partner:hover > img,
-.home-feature-node--partner:focus-visible > img,
-.home-feature-node--partner[data-active='true'] > img {
+.partner-artwork-safe > img,
+.partner-artwork-safe img,
+.partner-artwork-safe:hover > img,
+.partner-artwork-safe:hover img,
+.partner-artwork-safe:focus-visible > img,
+.partner-artwork-safe:focus-visible img,
+.partner-artwork-safe:focus-within > img,
+.partner-artwork-safe:focus-within img,
+.partner-artwork-safe[data-active='true'] > img,
+.partner-artwork-safe[data-active='true'] img {
   filter: none !important;
   opacity: 1 !important;
   transform: none !important;
@@ -39,19 +49,44 @@
   will-change: auto !important;
   backface-visibility: visible !important;
   -webkit-backface-visibility: visible !important;
+  mix-blend-mode: normal !important;
 }
 
-/* No sweep over the Partner image. Violet border/glow still communicates state. */
-.home-feature-node--partner .home-command-node__shade::after {
+/* The radar card itself must not enter the generic 3D transform path. */
+.partner-artwork-safe.home-feature-node,
+.partner-artwork-safe.home-feature-node:hover,
+.partner-artwork-safe.home-feature-node:focus-visible,
+.partner-artwork-safe.home-feature-node[data-active='true'] {
+  transform: none !important;
+}
+
+/* No bright sweep over Partner artwork. Violet frame/radar still shows state. */
+.partner-artwork-safe.home-feature-node .home-command-node__shade::after {
   display: none !important;
 }
 
-.home-feature-detail--partner .home-feature-detail__image img {
-  filter: none !important;
+/*
+ * Large active Partner preview uses a static CSS background rather than a
+ * remounted/animated img element. This avoids the compositor path completely.
+ */
+.partner-artwork-safe.home-feature-detail__image {
+  background-color: #080710;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+.partner-artwork-safe.home-feature-detail__image > img {
+  display: none !important;
+}
+
+.partner-artwork-safe.home-feature-detail__image > span {
   animation: none !important;
-  transform: none !important;
-  opacity: 1 !important;
-  will-change: auto !important;
+}
+
+/* Partner feature-page hero follows the same non-composited image rules. */
+.partner-artwork-safe.partner-system-hero-media {
+  background-color: #080710;
+  overflow: hidden;
 }
 
 .home-feature-detail--partner .home-feature-detail__copy h3 {
