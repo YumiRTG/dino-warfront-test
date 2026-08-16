@@ -205,10 +205,11 @@ export default function HomeModesNetworkPortal() {
   if (!target) return null
 
   const feature = FEATURES[active]
+  const partnerActive = feature.key === 'partner'
 
   return createPortal(
     <>
-      <div className="home-command-showcase__backdrop" aria-hidden>
+      <div className={`home-command-showcase__backdrop${partnerActive ? ' partner-artwork-safe' : ''}`} aria-hidden>
         <img
           key={feature.key}
           src={feature.img}
@@ -267,7 +268,7 @@ export default function HomeModesNetworkPortal() {
             <a
               key={item.key}
               href={pageHref(item.to)}
-              className={`home-command-node home-feature-node home-feature-node--${item.slot}`}
+              className={`home-command-node home-feature-node home-feature-node--${item.slot}${item.key === 'partner' ? ' partner-artwork-safe' : ''}`}
               data-active={active === index ? 'true' : undefined}
               aria-label={`${item.label}: ${item.title}`}
               style={{ ['--node-accent' as string]: item.accent }}
@@ -300,7 +301,15 @@ export default function HomeModesNetworkPortal() {
           className={`home-feature-detail home-feature-detail--${feature.key}`}
           style={{ ['--detail-accent' as string]: feature.accent }}
         >
-          <div className="home-feature-detail__image">
+          <div
+            className={`home-feature-detail__image${partnerActive ? ' partner-artwork-safe' : ''}`}
+            style={partnerActive
+              ? {
+                  backgroundImage: `url(${feature.img})`,
+                  backgroundPosition: feature.pos,
+                }
+              : undefined}
+          >
             <img key={feature.key} src={feature.img} alt="" style={{ objectPosition: feature.pos }} />
             <span aria-hidden />
           </div>
