@@ -122,60 +122,105 @@ export default function HomeModesNetworkPortal() {
   const [paused, setPaused] = useState(false)
 
   useEffect(() => {
-    const sections = Array.from(document.querySelectorAll<HTMLElement>('.home-exp-home > section'))
+    const root = document.getElementById('root')
+    if (!root) return
 
-    const obsoleteSections = sections.filter((candidate) => {
-      const heading = normalizedHeading(candidate)
-      return (
-        heading.includes('built for domination') ||
-        heading.includes('build for dominion') ||
-        heading.includes('apex roster')
-      )
-    })
+    let currentSection: HTMLElement | null = null
+    let restoreCurrent: (() => void) | null = null
+    let scheduled = false
 
-    obsoleteSections.forEach((obsolete) => {
-      obsolete.hidden = true
-    })
+    const detachCurrent = () => {
+      if (restoreCurrent) restoreCurrent()
+      restoreCurrent = null
+      currentSection = null
+      setTarget(null)
+      setInView(false)
+    }
 
-    const section = sections.find((candidate) => {
-      const heading = normalizedHeading(candidate)
-      return heading.includes('four ways') && heading.includes('to fight')
-    })
+    const attachToCurrentHome = () => {
+      scheduled = false
 
-    if (!section) {
-      return () => {
+      const home = document.querySelector<HTMLElement>('.home-exp-home')
+      if (!home) {
+        if (currentSection) detachCurrent()
+        return
+      }
+
+      const sections = Array.from(home.querySelectorAll<HTMLElement>(':scope > section'))
+      const section = sections.find((candidate) => {
+        const heading = normalizedHeading(candidate)
+        return heading.includes('four ways') && heading.includes('to fight')
+      })
+
+      if (!section) {
+        if (currentSection) detachCurrent()
+        return
+      }
+
+      if (section === currentSection && section.isConnected) return
+
+      detachCurrent()
+
+      const obsoleteSections = sections.filter((candidate) => {
+        const heading = normalizedHeading(candidate)
+        return (
+          heading.includes('built for domination') ||
+          heading.includes('build for dominion') ||
+          heading.includes('apex roster')
+        )
+      })
+
+      obsoleteSections.forEach((obsolete) => {
+        obsolete.hidden = true
+      })
+
+      const originalChildren = Array.from(section.children) as HTMLElement[]
+      const hadSectionBand = section.classList.contains('section-band')
+      const previousLabel = section.getAttribute('aria-label')
+
+      originalChildren.forEach((child) => {
+        child.hidden = true
+      })
+
+      if (hadSectionBand) section.classList.remove('section-band')
+      section.classList.add('home-command-showcase', 'home-modes-showcase')
+      section.setAttribute('aria-label', 'Dino Warfront core gameplay features')
+      section.style.setProperty('--command-accent', FEATURES[0].accent)
+
+      currentSection = section
+      restoreCurrent = () => {
         obsoleteSections.forEach((obsolete) => {
           obsolete.hidden = false
         })
+        originalChildren.forEach((child) => {
+          child.hidden = false
+        })
+        if (hadSectionBand) section.classList.add('section-band')
+        section.classList.remove('home-command-showcase', 'home-modes-showcase')
+        section.style.removeProperty('--command-accent')
+        if (previousLabel === null) section.removeAttribute('aria-label')
+        else section.setAttribute('aria-label', previousLabel)
       }
+
+      setTarget(section)
     }
 
-    const originalChildren = Array.from(section.children) as HTMLElement[]
-    const hadSectionBand = section.classList.contains('section-band')
-    const previousLabel = section.getAttribute('aria-label')
+    const scheduleAttach = () => {
+      if (scheduled) return
+      scheduled = true
+      queueMicrotask(attachToCurrentHome)
+    }
 
-    originalChildren.forEach((child) => {
-      child.hidden = true
-    })
+    attachToCurrentHome()
 
-    if (hadSectionBand) section.classList.remove('section-band')
-    section.classList.add('home-command-showcase', 'home-modes-showcase')
-    section.setAttribute('aria-label', 'Dino Warfront core gameplay features')
-    section.style.setProperty('--command-accent', FEATURES[0].accent)
-    setTarget(section)
+    const observer = new MutationObserver(scheduleAttach)
+    observer.observe(root, { childList: true, subtree: true })
+    window.addEventListener('popstate', scheduleAttach)
 
     return () => {
-      obsoleteSections.forEach((obsolete) => {
-        obsolete.hidden = false
-      })
-      originalChildren.forEach((child) => {
-        child.hidden = false
-      })
-      if (hadSectionBand) section.classList.add('section-band')
-      section.classList.remove('home-command-showcase', 'home-modes-showcase')
-      section.style.removeProperty('--command-accent')
-      if (previousLabel === null) section.removeAttribute('aria-label')
-      else section.setAttribute('aria-label', previousLabel)
+      observer.disconnect()
+      window.removeEventListener('popstate', scheduleAttach)
+      if (restoreCurrent) restoreCurrent()
     }
   }, [])
 
@@ -301,15 +346,7 @@ export default function HomeModesNetworkPortal() {
           className={`home-feature-detail home-feature-detail--${feature.key}`}
           style={{ ['--detail-accent' as string]: feature.accent }}
         >
-          <div
-            className={`home-feature-detail__image${partnerActive ? ' partner-artwork-safe' : ''}`}
-            style={partnerActive
-              ? {
-                  backgroundImage: `url(${feature.img})`,
-                  backgroundPosition: feature.pos,
-                }
-              : undefined}
-          >
+          <div className={`home-feature-detail__image${partnerActive ? ' partner-artwork-safe' : ''}`}>
             <img key={feature.key} src={feature.img} alt="" style={{ objectPosition: feature.pos }} />
             <span aria-hidden />
           </div>
