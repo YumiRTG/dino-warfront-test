@@ -66,27 +66,53 @@
 }
 
 /*
- * Large active Partner preview uses a static CSS background rather than a
- * remounted/animated img element. This avoids the compositor path completely.
+ * The large Partner description preview deliberately uses the same plain img
+ * path as the working radar card. Do not use the CSS background compositor.
  */
 .partner-artwork-safe.home-feature-detail__image {
-  background-color: #080710;
-  background-size: cover;
-  background-repeat: no-repeat;
+  background: #080710 !important;
+  overflow: hidden;
 }
 
 .partner-artwork-safe.home-feature-detail__image > img {
+  display: block !important;
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  filter: none !important;
+  opacity: 1 !important;
+  transform: none !important;
+  animation: none !important;
+  transition: none !important;
+}
+
+.partner-artwork-safe.home-feature-detail__image::after,
+.partner-artwork-safe.home-feature-detail__image > span {
   display: none !important;
 }
 
-.partner-artwork-safe.home-feature-detail__image > span {
-  animation: none !important;
+/* Partner feature-page hero follows the same static img rules. */
+.partner-artwork-safe.partner-system-hero-media {
+  background: #080710 !important;
+  overflow: hidden;
+  transform: none !important;
+  filter: none !important;
 }
 
-/* Partner feature-page hero follows the same non-composited image rules. */
-.partner-artwork-safe.partner-system-hero-media {
-  background-color: #080710;
-  overflow: hidden;
+.partner-artwork-safe.partner-system-hero-media > img {
+  display: block !important;
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  filter: none !important;
+  opacity: 1 !important;
+  transform: none !important;
+  animation: none !important;
+  transition: none !important;
 }
 
 .home-feature-detail--partner .home-feature-detail__copy h3 {
