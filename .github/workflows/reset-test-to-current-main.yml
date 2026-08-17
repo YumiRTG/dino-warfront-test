@@ -1,0 +1,66 @@
+name: Reset Test To Current Main
+
+on:
+  push:
+    paths:
+      - '.github/workflows/reset-test-to-current-main.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  reset:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout test repository
+        uses: actions/checkout@v4
+        with:
+          path: test
+          fetch-depth: 0
+
+      - name: Checkout current production baseline
+        uses: actions/checkout@v4
+        with:
+          repository: YumiRTG/app
+          ref: ba265182a4c9b59de34c83ce8d1d00198e09fd68
+          path: production
+
+      - name: Mirror production into test
+        run: |
+          rsync -a --delete \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='vite.config.ts' \
+            production/ test/
+
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('test/index.html')
+          text = p.read_text()
+          marker = '<meta name="viewport" content="width=device-width, initial-scale=1.0" />'
+          noindex = '<meta name="robots" content="noindex,nofollow,noarchive" />'
+          if noindex not in text:
+              text = text.replace(marker, marker + '\n    ' + noindex)
+          p.write_text(text)
+          PY
+
+      - name: Verify test build
+        working-directory: test
+        env:
+          VITE_BASE_PATH: /dino-warfront-test/
+        run: |
+          npm ci
+          npm run build
+
+      - name: Commit reset baseline
+        working-directory: test
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          if git diff --cached --quiet; then
+            echo 'No changes to commit.'
+          else
+            git commit -m 'Reset test site to production ba26518'
+            git push origin HEAD:main
+          fi
