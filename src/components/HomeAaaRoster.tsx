@@ -1,166 +1,182 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router'
+import { asset } from '@/lib/assets'
 import { BASIC_HEROES } from '@/lib/heroes'
 import { BASIC_DINOS } from '@/lib/dinos'
 import './HomeAaaRoster.css'
 
-type RosterKind = 'heroes' | 'dinos'
+type RosterEntry = {
+  id: string
+  name: string
+  role: string
+  detail: string
+  description: string
+  img: string
+}
 
-export default function HomeAaaRoster() {
-  const [kind, setKind] = useState<RosterKind>('heroes')
-  const [heroIndex, setHeroIndex] = useState(0)
-  const [dinoIndex, setDinoIndex] = useState(0)
+type ShowcaseProps = {
+  kind: 'heroes' | 'dinos'
+  eyebrow: string
+  title: string
+  accentTitle: string
+  intro: string
+  background: string
+  entries: RosterEntry[]
+  selected: number
+  onSelect: (index: number) => void
+  cta: string
+  ctaLabel: string
+}
 
-  const items = kind === 'heroes' ? BASIC_HEROES : BASIC_DINOS
-  const activeIndex = kind === 'heroes' ? heroIndex : dinoIndex
-  const active = items[activeIndex] ?? items[0]!
-
-  const meta = useMemo(() => {
-    if (kind === 'heroes') {
-      const hero = BASIC_HEROES[heroIndex] ?? BASIC_HEROES[0]!
-      return {
-        kicker: 'COMMAND ROSTER',
-        title: 'Faces of the warfront',
-        role: hero.role,
-        detail: hero.focus,
-        description: hero.blurb,
-        cta: '/features/heroes',
-        ctaLabel: 'View all heroes',
-      }
-    }
-
-    const dino = BASIC_DINOS[dinoIndex] ?? BASIC_DINOS[0]!
-    return {
-      kicker: 'APEX ROSTER',
-      title: 'Built by evolution',
-      role: dino.role,
-      detail: 'Prehistoric combat unit',
-      description: dino.blurb,
-      cta: '/features/dinos',
-      ctaLabel: 'View all dinosaurs',
-    }
-  }, [kind, heroIndex, dinoIndex])
-
-  const choose = (index: number) => {
-    if (kind === 'heroes') setHeroIndex(index)
-    else setDinoIndex(index)
-  }
+function RosterShowcase({
+  kind,
+  eyebrow,
+  title,
+  accentTitle,
+  intro,
+  background,
+  entries,
+  selected,
+  onSelect,
+  cta,
+  ctaLabel,
+}: ShowcaseProps) {
+  const active = entries[selected] ?? entries[0]!
 
   return (
-    <section className="aaa-roster section-band" aria-label="Dino Warfront roster showcase">
-      <div className="aaa-roster__ambient" aria-hidden />
-      <div className="container-dd relative z-10">
-        <div className="aaa-roster__header" data-reveal="up">
+    <section className={`real-roster real-roster--${kind}`} aria-label={`${kind} roster`}>
+      <img className="real-roster__environment" src={background} alt="" loading="lazy" draggable={false} />
+      <div className="real-roster__grade" aria-hidden />
+      <div className="real-roster__fog real-roster__fog--back" aria-hidden />
+      <div className="real-roster__embers" aria-hidden />
+
+      <div className="container-dd real-roster__content">
+        <header className="real-roster__header" data-reveal="up">
           <div>
-            <p className="eyebrow">ROSTER ARCHIVE</p>
+            <p className="eyebrow">{eyebrow}</p>
             <h2 className="display-lg text-white mt-2">
-              Meet the force<br />
-              <span className="text-gradient-magma">behind the empire.</span>
+              {title}<br />
+              <span className="text-gradient-magma">{accentTitle}</span>
             </h2>
           </div>
+          <p className="real-roster__intro">{intro}</p>
+        </header>
 
-          <div className="aaa-roster__switch" role="tablist" aria-label="Roster type">
-            <button
-              type="button"
-              role="tab"
-              aria-selected={kind === 'heroes'}
-              data-active={kind === 'heroes' ? 'true' : undefined}
-              onClick={() => setKind('heroes')}
-            >
-              Heroes
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={kind === 'dinos'}
-              data-active={kind === 'dinos' ? 'true' : undefined}
-              onClick={() => setKind('dinos')}
-            >
-              Dinosaurs
-            </button>
-          </div>
-        </div>
-
-        <div className="aaa-roster__stage" data-kind={kind} data-reveal="scale">
-          <div className="aaa-roster__scene" key={`${kind}-${active.id}`}>
-            <div className="aaa-roster__scene-light" aria-hidden />
-            <div className="aaa-roster__scene-haze" aria-hidden />
-            <div className="aaa-roster__scene-floor" aria-hidden />
-
-            <img
-              src={active.img}
-              alt={active.name}
-              className="aaa-roster__main-art"
-              draggable={false}
-            />
-
-            <div className="aaa-roster__silhouette" aria-hidden>
-              <img src={active.img} alt="" draggable={false} />
-            </div>
-
-            <div className="aaa-roster__cinema-bars" aria-hidden />
-
-            <div className="aaa-roster__identity">
-              <p>{meta.kicker}</p>
-              <span className="aaa-roster__index">{String(activeIndex + 1).padStart(2, '0')}</span>
-              <h3>{active.name}</h3>
-              <div className="aaa-roster__role-row">
-                <strong>{meta.role}</strong>
-                <span>{meta.detail}</span>
-              </div>
-              <p className="aaa-roster__description">{meta.description}</p>
-              <Link to={meta.cta} className="aaa-roster__cta no-underline">
-                {meta.ctaLabel}
-                <span aria-hidden>↗</span>
-              </Link>
-            </div>
-
-            <div className="aaa-roster__watermark" aria-hidden>
-              {kind === 'heroes' ? 'COMMAND' : 'APEX'}
-            </div>
-
-            <div className="aaa-roster__live-tag" aria-hidden>
-              <i /> ORIGINAL GAME RENDER
-            </div>
-          </div>
-
-          <div className="aaa-roster__rail" role="list" aria-label={`${kind} roster`}>
-            {items.map((item, index) => {
-              const selected = index === activeIndex
-              const sub = kind === 'heroes'
-                ? BASIC_HEROES[index]?.focus
-                : BASIC_DINOS[index]?.role
-
+        <div className="real-roster__cast-wrap" data-reveal="scale">
+          <div className="real-roster__horizon" aria-hidden />
+          <div className="real-roster__cast" role="list" aria-label={`${kind} in Dino Warfront`}>
+            {entries.map((entry, index) => {
+              const isActive = selected === index
               return (
                 <button
                   type="button"
-                  key={item.id}
-                  className="aaa-roster__card"
-                  data-active={selected ? 'true' : undefined}
-                  aria-pressed={selected}
-                  onClick={() => choose(index)}
-                  onMouseEnter={() => choose(index)}
-                  onFocus={() => choose(index)}
+                  key={entry.id}
+                  className="real-roster__figure"
+                  data-active={isActive ? 'true' : undefined}
+                  aria-pressed={isActive}
+                  onClick={() => onSelect(index)}
+                  onMouseEnter={() => onSelect(index)}
+                  onFocus={() => onSelect(index)}
                 >
-                  <img src={item.img} alt="" loading="lazy" draggable={false} />
-                  <span className="aaa-roster__card-scrim" />
-                  <span className="aaa-roster__card-number">{String(index + 1).padStart(2, '0')}</span>
-                  <span className="aaa-roster__card-copy">
-                    <strong>{item.name}</strong>
-                    <small>{sub}</small>
+                  <span className="real-roster__contact-shadow" aria-hidden />
+                  <span className="real-roster__figure-glow" aria-hidden />
+                  <img
+                    src={entry.img}
+                    alt={entry.name}
+                    loading={index < 3 ? 'eager' : 'lazy'}
+                    draggable={false}
+                  />
+                  <span className="real-roster__figure-label">
+                    <small>{String(index + 1).padStart(2, '0')}</small>
+                    <strong>{entry.name}</strong>
+                    <em>{entry.role}</em>
                   </span>
                 </button>
               )
             })}
           </div>
+          <div className="real-roster__fog real-roster__fog--front" aria-hidden />
         </div>
 
-        <div className="aaa-roster__footer" data-reveal="up">
-          <span>{kind === 'heroes' ? `${BASIC_HEROES.length} launch heroes` : `${BASIC_DINOS.length} prehistoric units`}</span>
-          <strong>{meta.title}</strong>
-          <span>Real in-game artwork · cinematic website treatment</span>
+        <div className="real-roster__intel" key={`${kind}-${active.id}`} data-reveal="up">
+          <div className="real-roster__intel-index">
+            {String(selected + 1).padStart(2, '0')} / {String(entries.length).padStart(2, '0')}
+          </div>
+          <div className="real-roster__intel-copy">
+            <p>{kind === 'heroes' ? 'ACTIVE COMMANDER' : 'ACTIVE SPECIMEN'}</p>
+            <h3>{active.name}</h3>
+            <div className="real-roster__meta">
+              <strong>{active.role}</strong>
+              <span>{active.detail}</span>
+            </div>
+            <p className="real-roster__description">{active.description}</p>
+          </div>
+          <Link to={cta} className="real-roster__cta no-underline">
+            {ctaLabel}<span aria-hidden>↗</span>
+          </Link>
         </div>
       </div>
     </section>
+  )
+}
+
+export default function HomeAaaRoster() {
+  const [heroIndex, setHeroIndex] = useState(0)
+  const [dinoIndex, setDinoIndex] = useState(0)
+
+  const heroes = useMemo<RosterEntry[]>(
+    () => BASIC_HEROES.map((hero) => ({
+      id: hero.id,
+      name: hero.name,
+      role: hero.role,
+      detail: hero.focus,
+      description: hero.blurb,
+      img: hero.img,
+    })),
+    [],
+  )
+
+  const dinos = useMemo<RosterEntry[]>(
+    () => BASIC_DINOS.map((dino) => ({
+      id: dino.id,
+      name: dino.name,
+      role: dino.role,
+      detail: 'Prehistoric combat unit',
+      description: dino.blurb,
+      img: dino.img,
+    })),
+    [],
+  )
+
+  return (
+    <div className="real-roster-suite">
+      <RosterShowcase
+        kind="heroes"
+        eyebrow="THE PEOPLE OF DINO WARFRONT"
+        title="Not portraits."
+        accentTitle="People in the world."
+        intro="The website now uses the actual hero artwork from the game as full-size characters. No AI replacements and no portrait-card treatment."
+        background={asset('feature-heroes-hero.jpg')}
+        entries={heroes}
+        selected={heroIndex}
+        onSelect={setHeroIndex}
+        cta="/features/heroes"
+        ctaLabel="Explore the heroes"
+      />
+
+      <RosterShowcase
+        kind="dinos"
+        eyebrow="THE CREATURES OF DINO WARFRONT"
+        title="No icons."
+        accentTitle="Living prehistoric scale."
+        intro="Every creature stands directly inside the environment. The artwork is treated like a photographed subject with depth, contact shadow and atmospheric light instead of a UI icon."
+        background={asset('feature-dinos-hero.jpg')}
+        entries={dinos}
+        selected={dinoIndex}
+        onSelect={setDinoIndex}
+        cta="/features/dinos"
+        ctaLabel="Explore the dinosaurs"
+      />
+    </div>
   )
 }
