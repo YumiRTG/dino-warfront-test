@@ -1,0 +1,56 @@
+name: Reset Test From Production
+
+on:
+  push:
+    paths:
+      - '.github/workflows/sync-from-production.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout test repository
+        uses: actions/checkout@v4
+        with:
+          path: test
+          fetch-depth: 0
+
+      - name: Checkout current production source
+        uses: actions/checkout@v4
+        with:
+          repository: YumiRTG/app
+          ref: b865f4a54649863351e414fed6df656096947eb2
+          path: production
+
+      - name: Mirror production into test
+        shell: bash
+        run: |
+          set -euo pipefail
+          rsync -a --delete \
+            --exclude='.git/' \
+            --exclude='.github/' \
+            --exclude='vite.config.ts' \
+            production/ test/
+
+      - name: Verify GitHub Pages build
+        working-directory: test
+        env:
+          VITE_BASE_PATH: /dino-warfront-test/
+        run: |
+          npm ci
+          npm run build
+
+      - name: Commit synchronized baseline
+        working-directory: test
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm -f .github/workflows/sync-from-production.yml
+          git add -A
+          git commit -m "Reset test site to current production baseline b865f4a"
+          git push origin HEAD:main
