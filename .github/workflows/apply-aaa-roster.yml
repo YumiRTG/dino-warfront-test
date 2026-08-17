@@ -1,0 +1,75 @@
+name: Apply AAA Roster
+
+on:
+  push:
+    paths:
+      - '.github/workflows/apply-aaa-roster.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Replace old roster presentation
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          p = Path('src/pages/HomePage.tsx')
+          text = p.read_text()
+
+          text = text.replace("import HomeDinoProjector from '@/components/HomeDinoProjector'\n", '')
+          if "import HomeAaaRoster from '@/components/HomeAaaRoster'" not in text:
+              marker = "import HomePlayablePreview from '@/components/HomePlayablePreview'\n"
+              text = text.replace(marker, marker + "import HomeAaaRoster from '@/components/HomeAaaRoster'\n")
+
+          text = re.sub(
+              r"\nconst DINOS = \[.*?\n\]\n",
+              "\n",
+              text,
+              count=1,
+              flags=re.S,
+          )
+
+          text = text.replace('      <HomeDinoProjector />\n', '')
+
+          if '<HomeAaaRoster />' not in text:
+              marker = '      <HomeCinematicSequence />\n'
+              text = text.replace(marker, marker + '      <HomeAaaRoster />\n', 1)
+
+          text = re.sub(
+              r'''\n\s*<div className="dino-marquee-wrap[^>]*>.*?</div>\n\s*</div>\n''',
+              '\n',
+              text,
+              count=1,
+              flags=re.S,
+          )
+
+          p.write_text(text)
+          PY
+
+          rm -f src/components/HomeDinoProjector.tsx src/components/HomeDinoProjector.css
+
+      - name: Verify build
+        env:
+          VITE_BASE_PATH: /dino-warfront-test/
+        run: |
+          npm ci
+          npm run build
+
+      - name: Commit AAA roster
+        run: |
+          rm -f .github/workflows/apply-aaa-roster.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Show cinematic AAA hero and dinosaur roster'
+          git push origin HEAD:main
