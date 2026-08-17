@@ -1,16 +1,20 @@
 import { asset } from '@/lib/assets'
 
 /**
- * Public live game data.
+ * Live game data for the website.
  *
- * Production uses /api/live behind Vercel's edge cache. The GitHub Pages test
- * build has no serverless runtime, so its deploy workflow fetches that already
- * cached endpoint once and publishes the result as a static JSON snapshot. This
- * keeps the test site functional without making every tester a Firestore reader.
+ * The browser no longer talks to Firestore for any of this. It fetches a single
+ * snapshot from /api/live, which is cached at Vercel's edge for twenty minutes,
+ * so the database is read at most once per twenty minutes for the whole world
+ * however many people load the page. Refreshing, crawlers and anyone holding F5
+ * all hit the CDN, not the bill.
+ *
+ * A second cache in sessionStorage means a refresh in the same tab does not even
+ * make the network call.
  */
 
-const SNAPSHOT_URL = import.meta.env.VITE_LIVE_SNAPSHOT_URL || '/api/live'
-const CACHE_KEY = 'dd_live_snapshot_v3'
+const SNAPSHOT_URL = '/api/live'
+const CACHE_KEY = 'dd_live_snapshot_v2'
 const CACHE_MS = 20 * 60 * 1000
 
 type RawHero = { id: string; name: string; power: number }
@@ -67,6 +71,14 @@ function readCache(): Snapshot | null {
   }
 }
 
+/**
+ * Throw the cached snapshot away.
+ *
+ * Profile tokens are derived from a server-side secret. If that secret is
+ * rotated, every token already sitting in a cache stops decoding and profile
+ * links 404. Rather than make people wait out the cache, a failed lookup can
+ * clear this and pull a fresh snapshot with valid tokens.
+ */
 export function clearSnapshotCache(): void {
   inflight = null
   try {
@@ -76,7 +88,7 @@ export function clearSnapshotCache(): void {
   }
 }
 
-/** One request per tab/cache window; production CDN or static test JSON does the rest. */
+/** One snapshot per page load, and per tab within the cache window. */
 export function getSnapshot(): Promise<Snapshot> {
   if (inflight) return inflight
 
@@ -101,7 +113,7 @@ export function getSnapshot(): Promise<Snapshot> {
       return data
     })
     .catch((err) => {
-      inflight = null
+      inflight = null // let a later section retry
       throw err
     })
 
@@ -109,6 +121,7 @@ export function getSnapshot(): Promise<Snapshot> {
 }
 
 // ─── Season clock ───────────────────────────────────────────────────────────
+// Mirrors ArenaService.SeasonEpoch: Monday 05.01.2026 00:00 UTC, one week each.
 
 const SEASON_EPOCH = Date.UTC(2026, 0, 5, 0, 0, 0)
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000
@@ -121,6 +134,7 @@ export function seasonEndsAt(now = Date.now()): number {
   return SEASON_EPOCH + (currentSeason(now) + 1) * WEEK_MS
 }
 
+/** Days / hours / minutes / seconds left in the current arena season. */
 export function seasonRemaining(now = Date.now()) {
   const ms = Math.max(0, seasonEndsAt(now) - now)
   const s = Math.floor(ms / 1000)
@@ -131,6 +145,9 @@ export function seasonRemaining(now = Date.now()) {
     seconds: s % 60,
   }
 }
+
+// ─── Hero portraits ─────────────────────────────────────────────────────────
+// heroId as written by the game, mapped onto the art already in /public.
 
 const HERO_ART: Record<string, string> = {
   tyranno: 'dino-tyranno.png',
@@ -158,6 +175,7 @@ export function heroArt(heroId: string | undefined): string {
 }
 
 function avatarPath(iconId: unknown, fallbackSeed: string): string {
+  // The arena docs store "profil_icon4"; the player docs store a bare number.
   const raw = typeof iconId === 'string' ? iconId.replace(/\D+/g, '') : String(iconId ?? '')
   const n = Number(raw)
   if (Number.isFinite(n) && n >= 1 && n <= 10) return asset(`avatars/avatar${n}.jpg`)
@@ -165,6 +183,8 @@ function avatarPath(iconId: unknown, fallbackSeed: string): string {
   for (let i = 0; i < fallbackSeed.length; i++) hash = (hash * 31 + fallbackSeed.charCodeAt(i)) >>> 0
   return asset(`avatars/avatar${(hash % 10) + 1}.jpg`)
 }
+
+// ─── Server pulse ───────────────────────────────────────────────────────────
 
 export type ServerPulse = {
   commanders: number
@@ -180,9 +200,12 @@ export async function getServerPulse(): Promise<ServerPulse> {
   return { ...s.pulse, season: currentSeason() }
 }
 
+// ─── Arena ladders ──────────────────────────────────────────────────────────
+
 export type ArenaHero = { id: string; name: string; power: number; art: string }
 
 export type ArenaFighter = {
+  /** Opaque profile token. The Account ID never reaches the browser. */
   token: string
   name: string
   points: number
@@ -192,6 +215,7 @@ export type ArenaFighter = {
   isBot: boolean
   avatar: string
   heroes: ArenaHero[]
+  /** Team Arena only: power of each of the three teams. */
   teamPower: number[]
 }
 
@@ -213,6 +237,8 @@ export async function getTeamArenaLadder(count = 5): Promise<ArenaFighter[]> {
   return s.teamArena.slice(0, count).map(toFighter)
 }
 
+// ─── Alliances ──────────────────────────────────────────────────────────────
+
 export type AllianceEntry = {
   id: string
   name: string
@@ -229,6 +255,7 @@ export async function getTopAlliances(count = 6): Promise<AllianceEntry[]> {
   return s.alliances.slice(0, count)
 }
 
+/** Leaderboard rows, straight from the cached snapshot. */
 export async function getRankRows(categoryId: string): Promise<RawRank[]> {
   const s = await getSnapshot()
   return s.ranks[categoryId] ?? []
@@ -237,6 +264,8 @@ export async function getRankRows(categoryId: string): Promise<RawRank[]> {
 export function avatarUrl(iconIndex: number, seed: string): string {
   return avatarPath(iconIndex, seed)
 }
+
+// ─── Formatting ─────────────────────────────────────────────────────────────
 
 export function compact(v: number): string {
   if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(v >= 10_000_000 ? 0 : 1)}M`

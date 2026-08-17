@@ -148,7 +148,6 @@ export async function grantRouletteReward(
   } catch (err) {
     const msg = (err as { message?: string })?.message || 'Could not save reward.'
     if (msg.includes('DW_SPIN_COOLDOWN')) {
-      // Another tab/device may have claimed while our short UI cache was stale.
       try { sessionStorage.removeItem(cacheKey('spin', accountId)) } catch {}
       return { ok: false, error: 'Next free spin is not ready yet.' }
     }

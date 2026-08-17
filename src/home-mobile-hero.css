@@ -1,0 +1,160 @@
+/* Focused mobile hero override.
+   Mobile layout stays responsive, while typography matches the original homepage look. */
+
+@media (max-width: 639px) {
+  main > .relative:has(> section:first-child img[data-hero-bg]) > section:first-child {
+    min-height: 100svh;
+    min-height: 100dvh;
+    background: #05040a;
+  }
+
+  main > .relative:has(> section:first-child img[data-hero-bg]) > section:first-child > img[data-hero-bg] {
+    top: 4.25rem !important;
+    bottom: auto !important;
+    width: 100% !important;
+    height: 72dvh !important;
+    min-height: 30rem !important;
+    max-height: none !important;
+    object-fit: cover !important;
+    object-position: 57% 44% !important;
+    transform: none !important;
+    filter: saturate(1.08) contrast(1.03) brightness(1.08) !important;
+  }
+
+  main > .relative:has(> section:first-child img[data-hero-bg]) > section:first-child > img[data-hero-bg] + div {
+    z-index: 2 !important;
+    background:
+      linear-gradient(to bottom,
+        rgba(5,4,10,0.55) 0%,
+        rgba(5,4,10,0.25) 18%,
+        rgba(5,4,10,0.06) 35%,
+        transparent 48%,
+        transparent 68%,
+        rgba(5,4,10,0.28) 82%,
+        #05040a 100%) !important;
+  }
+
+  main > .relative:has(> section:first-child img[data-hero-bg]) > section:first-child > .container-dd {
+    top: calc(4.25rem + 0.75rem) !important;
+    bottom: auto !important;
+    min-height: 0 !important;
+    padding: 0.85rem 1rem 0 !important;
+    justify-content: flex-start !important;
+    background: none !important;
+  }
+
+  /* Restore the original gold beta label instead of hiding it on phones. */
+  main > .relative:has(> section:first-child img[data-hero-bg]) > section:first-child .eyebrow {
+    display: inline-flex !important;
+    color: var(--gold) !important;
+    font-size: 0.58rem !important;
+    letter-spacing: 0.22em !important;
+    gap: 0.45rem !important;
+    margin-bottom: 0.5rem !important;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.5) !important;
+  }
+
+  main > .relative:has(> section:first-child img[data-hero-bg]) > section:first-child .eyebrow::before {
+    display: block !important;
+    width: 1rem !important;
+    background: linear-gradient(90deg, var(--magma), var(--gold)) !important;
+  }
+
+  /* Match the pre-mobile-optimization hero: clean white DINO + orange magma WARFRONT. */
+  main > .relative:has(> section:first-child img[data-hero-bg]) > section:first-child h1 {
+    color: #ffffff !important;
+    font-size: clamp(2.85rem, 14.5vw, 4rem) !important;
+    line-height: 0.80 !important;
+    letter-spacing: -0.045em !important;
+    text-shadow: 0 4px 40px rgba(0,0,0,0.65) !important;
+    filter: none !important;
+  }
+
+  main > .relative:has(> section:first-child img[data-hero-bg]) > section:first-child h1 .text-gradient-magma {
+    background: linear-gradient(105deg, #ff9a4a 0%, #ff7a3d 34%, #ff4d1a 68%, #c9360d 100%) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    color: transparent !important;
+    filter: drop-shadow(0 4px 18px rgba(0,0,0,0.38));
+  }
+
+  main > .relative:has(> section:first-child img[data-hero-bg]) > section:first-child .container-dd > div:nth-of-type(2) {
+    width: min(100%, 21.5rem) !important;
+    margin-top: 0.85rem !important;
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.5rem !important;
+    padding: 0.55rem !important;
+    border: 1px solid rgba(240,193,77,0.15);
+    background: rgba(5,4,10,0.28);
+    backdrop-filter: blur(7px) saturate(1.08);
+    -webkit-backdrop-filter: blur(7px) saturate(1.08);
+    box-shadow: 0 12px 35px rgba(0,0,0,0.18);
+  }
+
+  main > .relative:has(> section:first-child img[data-hero-bg]) > section:first-child .container-dd > div:nth-of-type(2) > :first-child {
+    grid-column: 1 / -1 !important;
+  }
+
+  main > .relative:has(> section:first-child img[data-hero-bg]) > section:first-child .container-dd > div:nth-of-type(2) .btn-primary,
+  main > .relative:has(> section:first-child img[data-hero-bg]) > section:first-child .container-dd > div:nth-of-type(2) .btn-secondary {
+    width: 100% !important;
+    min-height: 44px !important;
+    padding: 0.68rem 0.55rem !important;
+    font-size: 0.64rem !important;
+    letter-spacing: 0.085em !important;
+  }
+
+  main > .relative:has(> section:first-child img[data-hero-bg]) > section:first-child .container-dd > div:nth-of-type(2) .btn-primary {
+    color: #fff8f0 !important;
+  }
+
+  main > .relative:has(> section:first-child img[data-hero-bg]) > section:first-child .container-dd > div:nth-of-type(2) .btn-secondary {
+    color: var(--bone) !important;
+  }
+
+  main > .relative:has(> section:first-child img[data-hero-bg]) > section:first-child > div:last-child {
+    display: none !important;
+  }
+}
+
+@media (max-width: 390px) {
+  main > .relative:has(> section:first-child img[data-hero-bg]) > section:first-child h1 {
+    font-size: clamp(2.55rem, 14vw, 3.35rem) !important;
+  }
+
+  main > .relative:has(> section:first-child img[data-hero-bg]) > section:first-child .container-dd > div:nth-of-type(2) {
+    width: min(100%, 20rem) !important;
+  }
+}
+
+@media (max-width: 899px) and (max-height: 600px) and (orientation: landscape) {
+  main > .relative:has(> section:first-child img[data-hero-bg]) > section:first-child > img[data-hero-bg] {
+    top: 0 !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    object-position: 54% 46% !important;
+  }
+
+  main > .relative:has(> section:first-child img[data-hero-bg]) > section:first-child > .container-dd {
+    top: 4.1rem !important;
+    padding-top: 0 !important;
+  }
+
+  main > .relative:has(> section:first-child img[data-hero-bg]) > section:first-child h1 {
+    color: #fff !important;
+    font-size: clamp(2rem, 7vw, 2.75rem) !important;
+    text-shadow: 0 4px 40px rgba(0,0,0,0.65) !important;
+  }
+
+  main > .relative:has(> section:first-child img[data-hero-bg]) > section:first-child .container-dd > div:nth-of-type(2) {
+    margin-top: 0.45rem !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    width: min(100%, 31rem) !important;
+  }
+
+  main > .relative:has(> section:first-child img[data-hero-bg]) > section:first-child .container-dd > div:nth-of-type(2) > :first-child {
+    grid-column: auto !important;
+  }
+}

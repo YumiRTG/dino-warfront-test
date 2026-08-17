@@ -119,3 +119,106 @@
   color: var(--detail-accent);
   text-shadow: 0 0 24px color-mix(in srgb, var(--detail-accent) 28%, transparent);
 }
+
+/* FINAL PARTNER STATE: violet, no white active/click treatment */
+.home-feature-node--partner,
+.home-feature-node--partner:hover,
+.home-feature-node--partner:focus,
+.home-feature-node--partner:focus-visible,
+.home-feature-node--partner[data-active='true'] {
+  border-color: #c78cff !important;
+  background: linear-gradient(155deg, rgba(184,108,255,.18), #090812 58%) !important;
+  box-shadow:
+    0 28px 80px rgba(0,0,0,.50),
+    0 0 38px rgba(184,108,255,.28),
+    inset 0 0 34px rgba(184,108,255,.10) !important;
+}
+
+.home-feature-node--partner .home-command-node__shade {
+  background:
+    linear-gradient(to top, rgba(8,4,14,.97) 0%, rgba(18,8,30,.62) 46%, rgba(184,108,255,.08) 100%),
+    linear-gradient(120deg, transparent 42%, rgba(184,108,255,.18)) !important;
+}
+
+.home-feature-node--partner .home-command-node__copy span,
+.home-feature-node--partner .home-command-node__copy strong,
+.home-feature-node--partner:hover .home-command-node__copy strong,
+.home-feature-node--partner[data-active='true'] .home-command-node__copy strong,
+.home-feature-node--partner .home-command-node__open,
+.home-feature-node--partner:hover .home-command-node__open,
+.home-feature-node--partner[data-active='true'] .home-command-node__open {
+  color: #d9b5ff !important;
+}
+
+.home-feature-node--partner .home-command-node__copy small {
+  color: rgba(225,196,255,.72) !important;
+}
+
+/* Keep the large partner backdrop deliberately dark. */
+.home-command-showcase__backdrop.partner-artwork-safe > img {
+  opacity: .16 !important;
+  filter: none !important;
+  transform: none !important;
+  animation: none !important;
+}
+
+.home-feature-detail--partner {
+  border-color: rgba(199,140,255,.55) !important;
+  background: linear-gradient(105deg, rgba(184,108,255,.16), rgba(8,7,16,.97) 55%) !important;
+  box-shadow: inset 3px 0 0 #c78cff, 0 24px 70px rgba(0,0,0,.32), 0 0 34px rgba(184,108,255,.10) !important;
+}
+
+.home-feature-detail--partner .home-feature-detail__image > img {
+  opacity: .78 !important;
+  filter: none !important;
+  transform: none !important;
+  animation: none !important;
+}
+
+.home-feature-detail--partner .home-feature-detail__image::after {
+  display: block !important;
+  background: linear-gradient(90deg, rgba(8,7,16,.08) 24%, rgba(8,7,16,.92) 100%) !important;
+}
+
+.home-feature-detail--partner .home-feature-detail__copy h3,
+.home-feature-detail--partner .home-feature-detail__copy p,
+.home-feature-detail--partner .home-feature-detail__copy > strong {
+  color: #d9b5ff !important;
+}
+
+.home-feature-detail--partner .home-feature-detail__copy > div {
+  color: rgba(229,209,255,.78) !important;
+}
+
+.home-feature-detail--partner .home-feature-detail__chips span,
+.home-feature-detail--partner .home-feature-detail__chips a {
+  border-color: rgba(199,140,255,.42) !important;
+  color: #d9b5ff !important;
+  background: rgba(184,108,255,.10) !important;
+}
+
+.home-feature-detail--partner .home-feature-detail__chips a:hover,
+.home-feature-detail--partner .home-feature-detail__chips a:focus-visible {
+  border-color: #c78cff !important;
+  background: rgba(184,108,255,.22) !important;
+  box-shadow: 0 0 26px rgba(184,108,255,.24) !important;
+}
+
+.partner-system-page .partner-system-hero-media > img {
+  opacity: .82 !important;
+  filter: none !important;
+  transform: none !important;
+  animation: none !important;
+  transition: none !important;
+}
+
+.partner-system-page .display-lg,
+.partner-system-page .display-md,
+.partner-system-page h3,
+.partner-system-page .dd-card > strong {
+  color: #d9b5ff !important;
+}
+
+.partner-system-page .dd-card {
+  border-color: rgba(199,140,255,.18);
+}

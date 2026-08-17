@@ -1,0 +1,150 @@
+/* Short cinematic intro for the production homepage. */
+.home-intro {
+  position: fixed;
+  z-index: 300;
+  inset: 0;
+  overflow: hidden;
+  background: #030307;
+  display: grid;
+  place-items: center;
+  animation: home-intro-out .55s ease 2.55s forwards;
+}
+
+.home-intro__shutter {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 51%;
+  background:
+    linear-gradient(90deg, rgba(255,77,26,.05), transparent 30%, transparent 70%, rgba(56,232,255,.04)),
+    #05050a;
+  z-index: 3;
+}
+
+.home-intro__shutter--top {
+  top: 0;
+  border-bottom: 1px solid rgba(240,193,77,.22);
+  animation: home-shutter-top .75s cubic-bezier(.77,0,.18,1) 2.15s forwards;
+}
+
+.home-intro__shutter--bottom {
+  bottom: 0;
+  border-top: 1px solid rgba(240,193,77,.22);
+  animation: home-shutter-bottom .75s cubic-bezier(.77,0,.18,1) 2.15s forwards;
+}
+
+.home-intro__scan {
+  position: absolute;
+  z-index: 5;
+  left: 0;
+  right: 0;
+  top: -10%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #f0c14d, #ff4d1a, transparent);
+  box-shadow: 0 0 24px rgba(255,77,26,.65);
+  animation: home-intro-scan 1.35s ease-in-out .35s forwards;
+}
+
+.home-intro__mark {
+  position: relative;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  opacity: 0;
+  transform: scale(.92);
+  animation: home-intro-mark .7s cubic-bezier(.22,1,.36,1) .5s forwards;
+}
+
+.home-intro__mark strong {
+  font-family: 'Oswald', sans-serif;
+  font-size: clamp(4rem, 14vw, 10rem);
+  line-height: .78;
+  letter-spacing: -.045em;
+  color: #fff;
+  text-shadow: 0 0 45px rgba(255,255,255,.12);
+}
+
+.home-intro__mark .home-intro__warfront {
+  color: #ff5a24;
+  text-shadow: 0 0 45px rgba(255,77,26,.45);
+}
+
+.home-intro__code,
+.home-intro__sub {
+  font-family: 'Oswald', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: .32em;
+  font-size: .65rem;
+}
+
+.home-intro__code {
+  color: #f0c14d;
+  margin-bottom: 1.4rem;
+}
+
+.home-intro__sub {
+  color: rgba(244,240,234,.45);
+  margin-top: 1.6rem;
+}
+
+.home-intro__skip {
+  position: absolute;
+  z-index: 8;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  border: 0;
+  background: transparent;
+  color: rgba(255,255,255,.42);
+  font: 500 .65rem/1 'Oswald', sans-serif;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color .2s ease;
+}
+
+.home-intro__skip:hover {
+  color: #fff;
+}
+
+@keyframes home-intro-scan {
+  0% { top: -10%; opacity: 0; }
+  15% { opacity: 1; }
+  100% { top: 110%; opacity: 0; }
+}
+
+@keyframes home-intro-mark {
+  from { opacity: 0; transform: scale(.92) translateY(18px); filter: blur(8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
+}
+
+@keyframes home-shutter-top {
+  to { transform: translateY(-102%); }
+}
+
+@keyframes home-shutter-bottom {
+  to { transform: translateY(102%); }
+}
+
+@keyframes home-intro-out {
+  to { opacity: 0; visibility: hidden; }
+}
+
+@media (max-width: 640px) {
+  .home-intro__mark strong {
+    line-height: .82;
+  }
+
+  .home-intro__code,
+  .home-intro__sub {
+    letter-spacing: .22em;
+    font-size: .55rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-intro {
+    display: none !important;
+  }
+}

@@ -1,2 +1,4 @@
 User-agent: *
-Disallow: /
+Allow: /
+
+Sitemap: https://app-dino-dominion.vercel.app/sitemap.xml
