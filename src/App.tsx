@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router'
 import MainLayout from '@/layouts/MainLayout'
 import HomePage from '@/pages/HomePage'
+import HomeModesNetworkPortal from '@/components/HomeModesNetworkPortal'
 
 const StoryPage = lazy(() => import('@/pages/StoryPage'))
 const FeaturesPage = lazy(() => import('@/pages/FeaturesPage'))
@@ -73,6 +74,7 @@ export default function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>
+      <HomeModesNetworkPortal />
     </BrowserRouter>
   )
 }

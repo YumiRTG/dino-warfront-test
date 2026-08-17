@@ -1,0 +1,332 @@
+/* Mobile-only refinement for the production homepage.
+   Desktop remains unchanged. */
+
+@media (pointer: coarse) {
+  .home-exp-home a,
+  .home-exp-home button {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  .home-exp-home :is(.btn-primary, .btn-secondary) {
+    min-height: 44px;
+  }
+}
+
+@media (max-width: 800px) {
+  html {
+    scroll-padding-top: 5rem;
+  }
+
+  body {
+    overflow-x: hidden;
+  }
+
+  .home-exp-pointer {
+    display: none !important;
+  }
+
+  /* Hero: keep the same artwork/content, but make controls comfortable on phones. */
+  .home-exp-hero > .container-dd {
+    top: 15svh !important;
+    padding-inline: 1rem;
+  }
+
+  .home-exp-title {
+    font-size: clamp(3rem, 17vw, 5rem) !important;
+    line-height: .82 !important;
+  }
+
+  .home-exp-hero-grid {
+    opacity: .42;
+  }
+
+  .home-exp-hero-sweep {
+    opacity: .4;
+  }
+
+  .home-exp-hero-pulse {
+    width: 24rem;
+    height: 24rem;
+    bottom: -12rem;
+  }
+
+  .home-exp-hero .btn-primary,
+  .home-exp-hero .btn-secondary {
+    justify-content: center;
+    text-align: center;
+  }
+
+  /* The cinematic sequence keeps its content but drops desktop HUD clutter. */
+  .home-exp-sequence__hud,
+  .home-exp-sequence__rail {
+    display: none !important;
+  }
+
+  .home-exp-sequence__chapter {
+    padding: 6.5rem 1rem 4rem;
+  }
+
+  .home-exp-sequence__copy {
+    width: min(100%, 34rem);
+  }
+
+  .home-exp-sequence__copy h2 {
+    font-size: clamp(2.75rem, 13vw, 4.8rem);
+  }
+
+  .home-exp-sequence__shade {
+    background:
+      linear-gradient(90deg, rgba(5,4,10,.94) 0%, rgba(5,4,10,.7) 48%, rgba(5,4,10,.28) 100%),
+      linear-gradient(to top, rgba(5,4,10,.9), transparent 46%);
+  }
+
+  /* War Room becomes a compact touch-friendly dashboard. */
+  .war-room__grid {
+    grid-template-columns: 1fr !important;
+    gap: 1.1rem !important;
+  }
+
+  .war-room__readouts {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: .5rem !important;
+  }
+
+  .readout {
+    min-width: 0;
+    padding: .8rem .65rem;
+  }
+
+  .readout__value {
+    font-size: clamp(1.45rem, 7vw, 2.2rem);
+  }
+
+  .season-clock {
+    width: 100%;
+  }
+
+  .season-clock__cells {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: .35rem;
+  }
+
+  .season-clock__cell {
+    min-width: 0;
+    padding-inline: .25rem;
+  }
+
+  /* Six Ways: desktop radar becomes a horizontal swipe rail on touch screens. */
+  .home-feature-command-board {
+    display: flex !important;
+    min-height: 0 !important;
+    gap: .7rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding: .25rem .85rem 1rem;
+    margin-inline: -.85rem;
+  }
+
+  .home-feature-command-board::-webkit-scrollbar {
+    display: none;
+  }
+
+  .home-feature-command-board .home-command-lines,
+  .home-feature-command-board .home-feature-core {
+    display: none !important;
+  }
+
+  .home-feature-node,
+  .home-feature-node--defense,
+  .home-feature-node--campaign,
+  .home-feature-node--world,
+  .home-feature-node--arena,
+  .home-feature-node--partner,
+  .home-feature-node--worldboss {
+    position: relative !important;
+    inset: auto !important;
+    flex: 0 0 min(78vw, 21rem);
+    width: auto !important;
+    height: 13rem !important;
+    transform: none !important;
+    transform-origin: center !important;
+    scroll-snap-align: center;
+    scroll-snap-stop: always;
+  }
+
+  .home-feature-node[data-active='true'] {
+    transform: none !important;
+  }
+
+  .home-feature-node__index {
+    font-size: 2rem !important;
+  }
+
+  .home-command-node__open {
+    opacity: .9 !important;
+    transform: none !important;
+  }
+
+  .home-feature-detail {
+    grid-template-columns: 1fr !important;
+    margin-top: .4rem;
+  }
+
+  .home-feature-detail__image {
+    min-height: 11.5rem !important;
+  }
+
+  .home-feature-detail__copy {
+    padding: 1.15rem 1.1rem !important;
+  }
+
+  .home-feature-detail__copy h3 {
+    font-size: clamp(1.8rem, 9vw, 2.7rem);
+  }
+
+  .home-feature-detail__chips {
+    padding: 0 1.1rem 1.1rem !important;
+    justify-content: flex-start !important;
+  }
+
+  .home-feature-detail__chips span,
+  .home-feature-detail__chips a {
+    min-height: 38px;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .home-feature-detail__chips a {
+    width: 100% !important;
+    justify-content: center;
+    min-height: 46px;
+  }
+
+  .home-command-showcase__footer {
+    gap: .5rem;
+    flex-wrap: wrap;
+  }
+
+  .home-command-showcase__footer > span:last-child {
+    width: 100%;
+  }
+
+  /* Existing dino strip remains, but is less oversized on narrow screens. */
+  .dino-marquee-wrap {
+    padding-block: .55rem !important;
+  }
+
+  .dino-marquee-item {
+    gap: .45rem;
+  }
+
+  .dino-marquee-item img {
+    width: 2.3rem;
+    height: 2.3rem;
+  }
+
+  /* Cards and CTAs keep their current design, just gain breathing room. */
+  .home-exp-home .section-band {
+    overflow-x: clip;
+  }
+
+  .home-exp-home .dd-panel,
+  .home-exp-home .stat-chip {
+    min-width: 0;
+  }
+
+  .home-exp-final-cta {
+    padding: 2.6rem 1.25rem !important;
+  }
+
+  .home-exp-final-cta .btn-primary,
+  .home-exp-final-cta .btn-secondary {
+    justify-content: center;
+    text-align: center;
+  }
+}
+
+@media (max-width: 520px) {
+  .home-exp-hero > .container-dd {
+    top: 13.5svh !important;
+  }
+
+  .home-exp-hero .eyebrow {
+    font-size: .58rem;
+    letter-spacing: .16em;
+  }
+
+  .home-exp-hero .btn-primary {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+
+  .home-exp-hero .btn-secondary {
+    flex: 1 1 calc(50% - .4rem);
+    min-width: 0;
+    padding-inline: .75rem;
+  }
+
+  .home-feature-header {
+    padding-inline: .25rem;
+  }
+
+  .home-feature-header h2 {
+    font-size: clamp(2.25rem, 12vw, 3.4rem);
+  }
+
+  .home-feature-node,
+  .home-feature-node--defense,
+  .home-feature-node--campaign,
+  .home-feature-node--world,
+  .home-feature-node--arena,
+  .home-feature-node--partner,
+  .home-feature-node--worldboss {
+    flex-basis: 84vw;
+    height: 12rem !important;
+  }
+
+  .home-feature-detail__image {
+    min-height: 10rem !important;
+  }
+
+  .war-room__readouts {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .season-clock__num {
+    font-size: clamp(1.2rem, 7vw, 1.65rem);
+  }
+
+  .home-exp-final-cta .btn-primary,
+  .home-exp-final-cta .btn-secondary {
+    width: 100%;
+  }
+}
+
+@media (max-width: 380px) {
+  .home-exp-hero .btn-secondary {
+    flex-basis: 100%;
+  }
+
+  .home-feature-node,
+  .home-feature-node--defense,
+  .home-feature-node--campaign,
+  .home-feature-node--world,
+  .home-feature-node--arena,
+  .home-feature-node--partner,
+  .home-feature-node--worldboss {
+    flex-basis: 88vw;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-feature-command-board {
+    scroll-behavior: auto !important;
+  }
+}
