@@ -5,11 +5,5 @@ import '@fontsource/dm-sans/400.css'
 import '@fontsource/dm-sans/500.css'
 import './index.css'
 import App from './App.tsx'
-import HomeModesNetworkPortal from './components/HomeModesNetworkPortal.tsx'
 
-createRoot(document.getElementById('root')!).render(
-  <>
-    <App />
-    <HomeModesNetworkPortal />
-  </>
-)
+createRoot(document.getElementById('root')!).render(<App />)
