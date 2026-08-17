@@ -6,19 +6,9 @@ import TopCommanders from '@/sections/TopCommanders'
 import WarRoom from '@/sections/WarRoom'
 import { HomeCinematicSequence, HomeExperienceFx, HomeIntro } from '@/components/HomeExperience'
 import HomePlayablePreview from '@/components/HomePlayablePreview'
-import HomeDinoProjector from '@/components/HomeDinoProjector'
+import HomeAaaRoster from '@/components/HomeAaaRoster'
 import './HomePage.css'
 
-const DINOS = [
-  { name: 'Tyrannosaurus', img: asset('dino-tyranno.png'), role: 'Apex' },
-  { name: 'Velociraptor', img: asset('dino-raptor.png'), role: 'Speed' },
-  { name: 'Triceratops', img: asset('dino-triceratops.png'), role: 'Tank' },
-  { name: 'Dilophosaurus', img: asset('dino-dilo.png'), role: 'Control' },
-  { name: 'Stegosaurus', img: asset('dino-stego.png'), role: 'Defense' },
-  { name: 'Allosaurus', img: asset('dino-allo.png'), role: 'Hunter' },
-  { name: 'Pterodactyl', img: asset('dino-ptera.png'), role: 'Air' },
-  { name: 'Fire Dragon', img: asset('dino-dragon.png'), role: 'Special' },
-]
 
 export default function HomePage() {
   const motionRef = usePageMotion()
@@ -100,19 +90,8 @@ export default function HomePage() {
 
       <WarRoom />
       <HomeCinematicSequence />
+      <HomeAaaRoster />
       <HomePlayablePreview />
-      <HomeDinoProjector />
-
-      <div className="dino-marquee-wrap relative py-4 border-y border-[var(--gold)]/10 overflow-hidden" aria-hidden>
-        <div className="dino-marquee">
-          {[...DINOS, ...DINOS].map((d, i) => (
-            <span key={d.name + i} className="dino-marquee-item">
-              <img src={d.img} alt="" />
-              <span>{d.name}</span>
-            </span>
-          ))}
-        </div>
-      </div>
 
       <section className="section-band relative overflow-hidden">
         <div
