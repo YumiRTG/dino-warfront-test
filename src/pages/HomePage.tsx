@@ -6,6 +6,7 @@ import TopCommanders from '@/sections/TopCommanders'
 import WarRoom from '@/sections/WarRoom'
 import { HomeCinematicSequence, HomeExperienceFx, HomeIntro } from '@/components/HomeExperience'
 import HomePlayablePreview from '@/components/HomePlayablePreview'
+import HomeDinoProjector from '@/components/HomeDinoProjector'
 import './HomePage.css'
 
 const DINOS = [
@@ -100,6 +101,7 @@ export default function HomePage() {
       <WarRoom />
       <HomeCinematicSequence />
       <HomePlayablePreview />
+      <HomeDinoProjector />
 
       <div className="dino-marquee-wrap relative py-4 border-y border-[var(--gold)]/10 overflow-hidden" aria-hidden>
         <div className="dino-marquee">
