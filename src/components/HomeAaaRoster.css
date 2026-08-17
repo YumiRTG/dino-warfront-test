@@ -1,598 +1,590 @@
-.aaa-roster {
+.real-roster-suite {
   position: relative;
   overflow: hidden;
-  background:
-    radial-gradient(circle at 20% 10%, rgba(255,92,35,.11), transparent 28%),
-    radial-gradient(circle at 86% 78%, rgba(74,125,255,.08), transparent 32%),
-    #07080b;
+  background: #050609;
 }
 
-.aaa-roster::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: .26;
-  background-image:
-    linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px);
-  background-size: 72px 72px;
-  mask-image: linear-gradient(to bottom, transparent, #000 18%, #000 82%, transparent);
-}
-
-.aaa-roster__ambient {
-  position: absolute;
-  inset: -20%;
-  pointer-events: none;
-  background:
-    radial-gradient(ellipse at 50% 45%, rgba(255,255,255,.04), transparent 38%),
-    conic-gradient(from 200deg at 50% 50%, transparent, rgba(255,79,25,.08), transparent 40%, rgba(56,232,255,.05), transparent 70%);
-  filter: blur(30px);
-  animation: aaaRosterAmbient 14s ease-in-out infinite alternate;
-}
-
-.aaa-roster__header {
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  gap: 2rem;
-  margin-bottom: 2rem;
-}
-
-.aaa-roster__switch {
-  display: inline-flex;
-  padding: .35rem;
-  border: 1px solid rgba(255,255,255,.12);
-  background: rgba(8,9,12,.72);
-  backdrop-filter: blur(18px);
-  box-shadow: 0 18px 50px rgba(0,0,0,.32);
-}
-
-.aaa-roster__switch button {
-  appearance: none;
-  border: 0;
-  background: transparent;
-  color: rgba(255,255,255,.48);
-  padding: .85rem 1.35rem;
-  font-family: var(--font-ui);
-  font-size: .68rem;
-  letter-spacing: .22em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: color .25s ease, background .25s ease, transform .25s ease;
-}
-
-.aaa-roster__switch button:hover {
-  color: #fff;
-}
-
-.aaa-roster__switch button[data-active='true'] {
-  color: #fff;
-  background: linear-gradient(135deg, rgba(255,78,24,.28), rgba(255,168,68,.12));
-  box-shadow: inset 0 0 0 1px rgba(255,141,65,.38), 0 0 30px rgba(255,78,24,.12);
-}
-
-.aaa-roster__stage {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(15rem, 24rem);
-  min-height: 43rem;
-  border: 1px solid rgba(255,255,255,.10);
-  background: rgba(5,6,8,.82);
-  box-shadow: 0 50px 120px rgba(0,0,0,.48), inset 0 1px 0 rgba(255,255,255,.035);
-  overflow: hidden;
-}
-
-.aaa-roster__scene {
+.real-roster {
   position: relative;
-  min-height: 43rem;
+  min-height: 52rem;
   overflow: hidden;
   isolation: isolate;
-  background:
-    radial-gradient(circle at 62% 38%, rgba(255,122,48,.16), transparent 24%),
-    linear-gradient(120deg, #090a0d 0%, #111116 48%, #07080a 100%);
+  padding: clamp(5rem, 8vw, 8rem) 0 clamp(4rem, 7vw, 7rem);
+  background: #06070a;
 }
 
-.aaa-roster__scene::before {
-  content: '';
+.real-roster + .real-roster {
+  border-top: 1px solid rgba(255, 255, 255, .07);
+}
+
+.real-roster__environment {
+  position: absolute;
+  inset: -5%;
+  z-index: -6;
+  width: 110%;
+  height: 110%;
+  object-fit: cover;
+  object-position: center;
+  filter: brightness(.32) saturate(.9) contrast(1.08) blur(1px);
+  transform: scale(1.02);
+}
+
+.real-roster--dinos .real-roster__environment {
+  filter: brightness(.28) saturate(1.02) contrast(1.13) blur(1px);
+}
+
+.real-roster__grade {
   position: absolute;
   inset: 0;
+  z-index: -5;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(3, 4, 7, .9) 0%, rgba(3, 4, 7, .48) 23%, rgba(3, 4, 7, .18) 56%, rgba(3, 4, 7, .88) 100%),
+    radial-gradient(ellipse 80% 60% at 48% 54%, transparent 25%, rgba(0, 0, 0, .48) 86%),
+    linear-gradient(90deg, rgba(3, 4, 7, .62), transparent 30%, transparent 70%, rgba(3, 4, 7, .62));
+}
+
+.real-roster--heroes .real-roster__grade {
+  background:
+    linear-gradient(180deg, rgba(3, 4, 7, .88) 0%, rgba(3, 4, 7, .4) 26%, rgba(3, 4, 7, .16) 55%, rgba(3, 4, 7, .92) 100%),
+    radial-gradient(circle at 52% 46%, rgba(231, 162, 90, .12), transparent 30%),
+    radial-gradient(ellipse 90% 65% at 50% 55%, transparent 30%, rgba(0, 0, 0, .52) 90%);
+}
+
+.real-roster--dinos .real-roster__grade {
+  background:
+    linear-gradient(180deg, rgba(3, 4, 6, .9) 0%, rgba(3, 4, 6, .32) 28%, rgba(3, 4, 6, .1) 57%, rgba(3, 4, 6, .94) 100%),
+    radial-gradient(circle at 58% 44%, rgba(255, 95, 28, .16), transparent 28%),
+    radial-gradient(ellipse 95% 70% at 52% 54%, transparent 34%, rgba(0, 0, 0, .58) 92%);
+}
+
+.real-roster__content {
+  position: relative;
+  z-index: 2;
+}
+
+.real-roster__header {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(20rem, .7fr);
+  gap: clamp(2rem, 5vw, 5rem);
+  align-items: end;
+  margin-bottom: clamp(2.5rem, 5vw, 4.5rem);
+}
+
+.real-roster__intro {
+  justify-self: end;
+  max-width: 35rem;
+  margin: 0;
+  color: rgba(235, 232, 223, .68);
+  font-family: var(--font-body);
+  font-size: clamp(.96rem, 1.5vw, 1.08rem);
+  line-height: 1.75;
+}
+
+.real-roster__cast-wrap {
+  position: relative;
+  margin-inline: calc(clamp(1rem, 3vw, 2.5rem) * -1);
+  padding: 1rem clamp(1rem, 3vw, 2.5rem) 1.25rem;
+  overflow: hidden;
+}
+
+.real-roster__cast {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(12.5rem, 1fr);
+  align-items: end;
+  gap: clamp(.2rem, 1vw, .8rem);
+  min-height: 31rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 1rem .5rem 1.5rem;
+  scroll-snap-type: x proximity;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 127, 62, .28) transparent;
+}
+
+.real-roster--heroes .real-roster__cast {
+  grid-template-columns: repeat(6, minmax(10.5rem, 1fr));
+  grid-auto-flow: initial;
+  grid-auto-columns: auto;
+  min-width: 68rem;
+}
+
+.real-roster--dinos .real-roster__cast {
+  grid-auto-columns: minmax(15.5rem, 18rem);
+  min-height: 34rem;
+}
+
+.real-roster__cast::-webkit-scrollbar {
+  height: 5px;
+}
+
+.real-roster__cast::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.real-roster__cast::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(255, 127, 62, .28);
+}
+
+.real-roster__horizon {
+  position: absolute;
   z-index: 1;
+  left: -8%;
+  right: -8%;
+  bottom: 7.25rem;
+  height: 8rem;
   pointer-events: none;
   background:
-    linear-gradient(90deg, rgba(5,6,8,.96) 0%, rgba(5,6,8,.72) 24%, rgba(5,6,8,.08) 57%, rgba(5,6,8,.18) 100%),
-    linear-gradient(to top, rgba(4,5,7,.92) 0%, transparent 36%, rgba(4,5,7,.22) 100%);
+    linear-gradient(to bottom, transparent 0%, rgba(130, 142, 137, .035) 45%, rgba(255, 124, 47, .07) 78%, transparent 100%),
+    radial-gradient(ellipse 58% 18% at 50% 82%, rgba(255, 112, 39, .14), transparent 70%);
+  filter: blur(8px);
 }
 
-.aaa-roster__scene::after {
+.real-roster__figure {
+  position: relative;
+  scroll-snap-align: center;
+  height: 30rem;
+  min-width: 0;
+  border: 0;
+  padding: 0;
+  overflow: visible;
+  appearance: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  isolation: isolate;
+  transform-origin: 50% 82%;
+  transition: transform .45s cubic-bezier(.2, .72, .2, 1), opacity .35s ease;
+}
+
+.real-roster--dinos .real-roster__figure {
+  height: 32.5rem;
+}
+
+.real-roster__figure::before {
   content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 5;
-  pointer-events: none;
-  box-shadow: inset 0 0 90px rgba(0,0,0,.5), inset 0 -120px 100px rgba(0,0,0,.38);
-}
-
-.aaa-roster__scene-light {
   position: absolute;
   z-index: 0;
-  width: 46%;
-  aspect-ratio: 1;
-  right: 6%;
-  top: 11%;
+  left: 18%;
+  right: 18%;
+  top: 16%;
+  bottom: 15%;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(255,132,63,.28), rgba(255,78,24,.08) 38%, transparent 70%);
-  filter: blur(18px);
-  animation: aaaRosterLight 6s ease-in-out infinite alternate;
-}
-
-.aaa-roster__stage[data-kind='dinos'] .aaa-roster__scene-light {
-  background: radial-gradient(circle, rgba(255,101,42,.34), rgba(188,61,15,.08) 42%, transparent 72%);
-}
-
-.aaa-roster__scene-haze {
-  position: absolute;
-  inset: auto -10% -18% 20%;
-  height: 48%;
-  z-index: 2;
+  opacity: 0;
   pointer-events: none;
-  background:
-    radial-gradient(ellipse at 50% 100%, rgba(255,119,49,.16), transparent 60%),
-    linear-gradient(to top, rgba(200,200,210,.055), transparent);
-  filter: blur(18px);
+  background: radial-gradient(circle, rgba(255, 122, 53, .17), rgba(255, 81, 22, .05) 42%, transparent 70%);
+  filter: blur(20px);
+  transition: opacity .35s ease;
 }
 
-.aaa-roster__scene-floor {
-  position: absolute;
-  left: 36%;
-  right: 5%;
-  bottom: 8%;
-  height: 1px;
-  z-index: 2;
-  background: linear-gradient(90deg, transparent, rgba(255,151,78,.45), transparent);
-  box-shadow: 0 0 40px rgba(255,88,30,.28), 0 -22px 60px rgba(255,88,30,.08);
+.real-roster__figure:hover,
+.real-roster__figure:focus-visible,
+.real-roster__figure[data-active='true'] {
+  z-index: 7;
+  transform: translateY(-.35rem) scale(1.055);
+  outline: none;
 }
 
-.aaa-roster__main-art {
+.real-roster__figure[data-active='true']::before,
+.real-roster__figure:hover::before {
+  opacity: 1;
+}
+
+.real-roster__figure img {
   position: absolute;
   z-index: 3;
-  right: -2%;
-  bottom: -4%;
-  width: min(66%, 54rem);
-  height: 96%;
+  left: 50%;
+  bottom: 4.65rem;
+  width: 114%;
+  height: calc(100% - 2.2rem);
   object-fit: contain;
-  object-position: right bottom;
-  transform-origin: 70% 80%;
+  object-position: center bottom;
+  transform: translateX(-50%);
+  transform-origin: center bottom;
+  user-select: none;
+  pointer-events: none;
   filter:
-    saturate(1.08)
+    saturate(.92)
+    brightness(.8)
     contrast(1.08)
-    brightness(.96)
-    drop-shadow(0 35px 35px rgba(0,0,0,.55))
-    drop-shadow(0 0 30px rgba(255,94,34,.10));
-  animation: aaaRosterReveal .65s cubic-bezier(.22,.75,.2,1) both;
+    drop-shadow(0 1.7rem 1.35rem rgba(0, 0, 0, .72))
+    drop-shadow(0 0 1.2rem rgba(255, 118, 50, .07));
+  transition: filter .35s ease, transform .45s cubic-bezier(.2, .72, .2, 1);
 }
 
-.aaa-roster__stage[data-kind='dinos'] .aaa-roster__main-art {
-  width: min(72%, 58rem);
-  height: 100%;
-  right: -5%;
-  bottom: -7%;
+.real-roster--heroes .real-roster__figure img {
+  width: 126%;
+  height: calc(100% - 1.5rem);
 }
 
-.aaa-roster__silhouette {
+.real-roster--dinos .real-roster__figure img {
+  width: 136%;
+  height: calc(100% - 3rem);
+}
+
+.real-roster__figure[data-active='true'] img,
+.real-roster__figure:hover img,
+.real-roster__figure:focus-visible img {
+  filter:
+    saturate(1.04)
+    brightness(1.03)
+    contrast(1.09)
+    drop-shadow(0 2rem 1.5rem rgba(0, 0, 0, .78))
+    drop-shadow(0 0 1.7rem rgba(255, 117, 48, .15));
+  transform: translateX(-50%) scale(1.025);
+}
+
+.real-roster__contact-shadow {
   position: absolute;
-  z-index: 0;
-  right: 10%;
-  bottom: -4%;
-  width: 62%;
-  height: 88%;
-  opacity: .12;
-  transform: scale(1.14) translateX(-8%);
-  filter: blur(26px) saturate(.2) brightness(.25);
-  pointer-events: none;
+  z-index: 1;
+  left: 13%;
+  right: 13%;
+  bottom: 4.2rem;
+  height: 2.45rem;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(0, 0, 0, .78), rgba(0, 0, 0, .38) 52%, transparent 72%);
+  filter: blur(6px);
+  transform: scaleX(.86);
+  opacity: .75;
+  transition: transform .35s ease, opacity .35s ease;
 }
 
-.aaa-roster__silhouette img {
+.real-roster__figure[data-active='true'] .real-roster__contact-shadow {
+  transform: scaleX(1.05);
+  opacity: .9;
+}
+
+.real-roster__figure-glow {
+  position: absolute;
+  z-index: 2;
+  left: 12%;
+  right: 12%;
+  bottom: 4.4rem;
+  height: 1px;
+  opacity: .22;
+  background: linear-gradient(90deg, transparent, rgba(255, 144, 76, .9), transparent);
+  box-shadow: 0 0 22px rgba(255, 100, 35, .24);
+  transition: opacity .3s ease, box-shadow .3s ease;
+}
+
+.real-roster__figure[data-active='true'] .real-roster__figure-glow {
+  opacity: .72;
+  box-shadow: 0 0 34px rgba(255, 100, 35, .38);
+}
+
+.real-roster__figure-label {
+  position: absolute;
+  z-index: 10;
+  left: 50%;
+  bottom: .1rem;
   width: 100%;
-  height: 100%;
-  object-fit: contain;
-  object-position: right bottom;
-}
-
-.aaa-roster__cinema-bars {
-  position: absolute;
-  z-index: 7;
-  inset: 0;
+  transform: translateX(-50%);
+  display: grid;
+  justify-items: center;
+  gap: .12rem;
+  text-align: center;
   pointer-events: none;
-  background:
-    linear-gradient(to bottom, rgba(0,0,0,.28) 0, transparent 9%, transparent 91%, rgba(0,0,0,.34) 100%);
+  text-shadow: 0 2px 12px #000, 0 0 18px #000;
 }
 
-.aaa-roster__identity {
-  position: absolute;
-  z-index: 8;
-  left: clamp(1.5rem, 4vw, 4.25rem);
-  bottom: clamp(2rem, 6vw, 5rem);
-  width: min(38rem, 52%);
-}
-
-.aaa-roster__identity > p:first-child {
-  margin: 0 0 .7rem;
-  color: #ff8a43;
+.real-roster__figure-label small {
+  color: rgba(255, 255, 255, .28);
   font-family: var(--font-ui);
-  font-size: .68rem;
-  letter-spacing: .34em;
-  text-transform: uppercase;
+  font-size: .52rem;
+  letter-spacing: .24em;
 }
 
-.aaa-roster__index {
-  display: inline-block;
-  margin-bottom: .5rem;
-  color: rgba(255,255,255,.28);
+.real-roster__figure-label strong {
+  color: rgba(255, 255, 255, .7);
   font-family: var(--font-display);
-  font-size: clamp(1.6rem, 3vw, 3rem);
+  font-size: clamp(.98rem, 1.6vw, 1.35rem);
+  line-height: 1;
+  letter-spacing: .035em;
+  text-transform: uppercase;
+  transition: color .25s ease, transform .25s ease;
+}
+
+.real-roster__figure-label em {
+  color: rgba(255, 255, 255, .32);
+  font-family: var(--font-ui);
+  font-size: .49rem;
+  font-style: normal;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+  transition: color .25s ease;
+}
+
+.real-roster__figure[data-active='true'] .real-roster__figure-label strong,
+.real-roster__figure:hover .real-roster__figure-label strong {
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.real-roster__figure[data-active='true'] .real-roster__figure-label em,
+.real-roster__figure:hover .real-roster__figure-label em {
+  color: #ff9a58;
+}
+
+.real-roster__fog {
+  position: absolute;
+  left: -12%;
+  right: -12%;
+  pointer-events: none;
+}
+
+.real-roster__fog--back {
+  z-index: -1;
+  bottom: 20%;
+  height: 26%;
+  opacity: .42;
+  background:
+    radial-gradient(ellipse at 25% 60%, rgba(197, 205, 202, .15), transparent 37%),
+    radial-gradient(ellipse at 72% 54%, rgba(207, 214, 210, .11), transparent 34%);
+  filter: blur(28px);
+}
+
+.real-roster__fog--front {
+  z-index: 6;
+  bottom: 3.8rem;
+  height: 7rem;
+  opacity: .36;
+  background:
+    radial-gradient(ellipse at 15% 60%, rgba(182, 190, 185, .18), transparent 38%),
+    radial-gradient(ellipse at 48% 70%, rgba(210, 213, 204, .12), transparent 41%),
+    radial-gradient(ellipse at 84% 55%, rgba(185, 190, 183, .16), transparent 36%);
+  filter: blur(19px);
+}
+
+.real-roster__embers {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  opacity: .6;
+  background-image:
+    radial-gradient(circle at 18% 62%, rgba(255, 119, 48, .72) 0 1px, transparent 1.8px),
+    radial-gradient(circle at 62% 49%, rgba(255, 167, 83, .52) 0 1px, transparent 1.6px),
+    radial-gradient(circle at 81% 67%, rgba(255, 106, 37, .64) 0 1px, transparent 1.7px),
+    radial-gradient(circle at 40% 72%, rgba(255, 175, 94, .38) 0 1px, transparent 1.5px);
+  animation: realRosterEmbers 8s ease-in-out infinite alternate;
+}
+
+.real-roster__intel {
+  position: relative;
+  z-index: 8;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: clamp(1.2rem, 3vw, 2.5rem);
+  align-items: center;
+  margin-top: 1rem;
+  padding: 1.35rem 0 0;
+  border-top: 1px solid rgba(255, 255, 255, .11);
+}
+
+.real-roster__intel-index {
+  align-self: start;
+  padding-top: .24rem;
+  color: rgba(255, 255, 255, .25);
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 3vw, 2.6rem);
   line-height: 1;
 }
 
-.aaa-roster__identity h3 {
+.real-roster__intel-copy > p:first-child {
+  margin: 0 0 .4rem;
+  color: #ff9251;
+  font-family: var(--font-ui);
+  font-size: .58rem;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+}
+
+.real-roster__intel-copy h3 {
   margin: 0;
-  max-width: 12ch;
   color: #fff;
   font-family: var(--font-display);
-  font-size: clamp(3rem, 6vw, 6.7rem);
-  line-height: .83;
-  letter-spacing: -.03em;
+  font-size: clamp(2rem, 4vw, 4rem);
+  line-height: .92;
+  letter-spacing: -.02em;
   text-transform: uppercase;
-  text-wrap: balance;
-  text-shadow: 0 10px 40px rgba(0,0,0,.5);
+  text-shadow: 0 8px 30px rgba(0, 0, 0, .6);
 }
 
-.aaa-roster__role-row {
+.real-roster__meta {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  gap: .75rem 1rem;
-  margin-top: 1.3rem;
+  gap: .5rem 1rem;
+  margin-top: .72rem;
 }
 
-.aaa-roster__role-row strong,
-.aaa-roster__role-row span {
+.real-roster__meta strong,
+.real-roster__meta span {
   font-family: var(--font-ui);
-  font-size: .66rem;
-  letter-spacing: .18em;
+  font-size: .58rem;
+  letter-spacing: .16em;
   text-transform: uppercase;
 }
 
-.aaa-roster__role-row strong { color: #ff9a54; }
-.aaa-roster__role-row span { color: rgba(255,255,255,.48); }
+.real-roster__meta strong { color: #ff9857; }
+.real-roster__meta span { color: rgba(255, 255, 255, .38); }
 
-.aaa-roster__description {
-  max-width: 33rem;
-  margin: 1.15rem 0 0;
-  color: rgba(235,230,220,.72);
+.real-roster__description {
+  max-width: 44rem;
+  margin: .72rem 0 0;
+  color: rgba(235, 232, 223, .62);
   font-family: var(--font-body);
-  font-size: .98rem;
-  line-height: 1.72;
+  font-size: .9rem;
+  line-height: 1.68;
 }
 
-.aaa-roster__cta {
+.real-roster__cta {
   display: inline-flex;
   align-items: center;
-  gap: .65rem;
-  margin-top: 1.6rem;
-  color: #fff;
+  gap: .6rem;
+  white-space: nowrap;
+  color: rgba(255, 255, 255, .82);
   font-family: var(--font-ui);
-  font-size: .69rem;
-  letter-spacing: .19em;
+  font-size: .62rem;
+  letter-spacing: .18em;
   text-transform: uppercase;
-  transition: color .22s ease, transform .22s ease;
+  transition: color .2s ease, transform .2s ease;
 }
 
-.aaa-roster__cta span {
-  color: #ff8c4b;
-  font-size: 1rem;
+.real-roster__cta span {
+  color: #ff9655;
+  font-size: .95rem;
 }
 
-.aaa-roster__cta:hover {
-  color: #ffad73;
+.real-roster__cta:hover {
+  color: #fff;
   transform: translateX(3px);
 }
 
-.aaa-roster__watermark {
-  position: absolute;
-  z-index: 0;
-  right: 1.5rem;
-  top: 1.25rem;
-  color: rgba(255,255,255,.022);
-  font-family: var(--font-display);
-  font-size: clamp(5rem, 11vw, 12rem);
-  line-height: 1;
-  letter-spacing: -.04em;
-  text-transform: uppercase;
-  writing-mode: vertical-rl;
-  transform: rotate(180deg);
-  user-select: none;
+@keyframes realRosterEmbers {
+  0% { transform: translate3d(0, 0, 0); opacity: .4; }
+  100% { transform: translate3d(0, -18px, 0); opacity: .72; }
 }
 
-.aaa-roster__live-tag {
-  position: absolute;
-  z-index: 9;
-  right: 1.2rem;
-  top: 1.2rem;
-  display: flex;
-  align-items: center;
-  gap: .45rem;
-  color: rgba(255,255,255,.42);
-  font-family: var(--font-ui);
-  font-size: .55rem;
-  letter-spacing: .17em;
-  text-transform: uppercase;
-}
-
-.aaa-roster__live-tag i {
-  width: .4rem;
-  height: .4rem;
-  border-radius: 50%;
-  background: #ff7b37;
-  box-shadow: 0 0 12px rgba(255,102,45,.8);
-}
-
-.aaa-roster__rail {
-  position: relative;
-  z-index: 10;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  align-content: stretch;
-  gap: 1px;
-  padding: 1px;
-  overflow-y: auto;
-  max-height: 43rem;
-  background: rgba(255,255,255,.055);
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255,125,60,.35) transparent;
-}
-
-.aaa-roster__card {
-  position: relative;
-  min-height: 13.9rem;
-  overflow: hidden;
-  border: 0;
-  padding: 0;
-  cursor: pointer;
-  text-align: left;
-  background: #0b0c0f;
-  isolation: isolate;
-}
-
-.aaa-roster__card::after {
-  content: '';
-  position: absolute;
-  z-index: 5;
-  inset: 0;
-  border: 1px solid transparent;
-  pointer-events: none;
-  transition: border-color .25s ease, box-shadow .25s ease;
-}
-
-.aaa-roster__card img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center 18%;
-  filter: saturate(.72) contrast(1.08) brightness(.68);
-  transform: scale(1.02);
-  transition: transform .45s cubic-bezier(.2,.7,.2,1), filter .35s ease;
-}
-
-.aaa-roster__stage[data-kind='dinos'] .aaa-roster__card img {
-  object-fit: contain;
-  object-position: center 46%;
-  padding: .25rem;
-  background: radial-gradient(circle at 50% 45%, rgba(255,113,46,.10), transparent 48%), #090a0d;
-}
-
-.aaa-roster__card:hover img,
-.aaa-roster__card[data-active='true'] img {
-  transform: scale(1.075);
-  filter: saturate(1.05) contrast(1.06) brightness(.92);
-}
-
-.aaa-roster__card[data-active='true']::after {
-  border-color: rgba(255,134,72,.72);
-  box-shadow: inset 0 0 32px rgba(255,85,25,.10), 0 0 24px rgba(255,85,25,.10);
-}
-
-.aaa-roster__card-scrim {
-  position: absolute;
-  z-index: 2;
-  inset: 0;
-  background:
-    linear-gradient(to top, rgba(3,4,6,.98) 0%, rgba(3,4,6,.7) 28%, transparent 64%),
-    linear-gradient(to right, rgba(3,4,6,.25), transparent 48%);
-}
-
-.aaa-roster__card-number {
-  position: absolute;
-  z-index: 3;
-  top: .8rem;
-  left: .8rem;
-  color: rgba(255,255,255,.28);
-  font-family: var(--font-ui);
-  font-size: .56rem;
-  letter-spacing: .2em;
-}
-
-.aaa-roster__card-copy {
-  position: absolute;
-  z-index: 4;
-  left: .85rem;
-  right: .75rem;
-  bottom: .8rem;
-  display: block;
-}
-
-.aaa-roster__card-copy strong {
-  display: block;
-  color: #fff;
-  font-family: var(--font-display);
-  font-size: clamp(.95rem, 1.4vw, 1.25rem);
-  line-height: 1;
-  letter-spacing: .02em;
-  text-transform: uppercase;
-}
-
-.aaa-roster__card-copy small {
-  display: block;
-  margin-top: .35rem;
-  color: rgba(255,255,255,.42);
-  font-family: var(--font-ui);
-  font-size: .48rem;
-  line-height: 1.35;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-}
-
-.aaa-roster__footer {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem 0 0;
-  color: rgba(255,255,255,.28);
-  font-family: var(--font-ui);
-  font-size: .55rem;
-  letter-spacing: .15em;
-  text-transform: uppercase;
-}
-
-.aaa-roster__footer strong {
-  color: rgba(255,255,255,.58);
-  font-weight: 500;
-}
-
-.aaa-roster__footer span:last-child { text-align: right; }
-
-@keyframes aaaRosterReveal {
-  from { opacity: 0; transform: translateX(2.5%) scale(.985); filter: saturate(.4) contrast(1.1) brightness(.65) blur(3px); }
-  to { opacity: 1; transform: translateX(0) scale(1); }
-}
-
-@keyframes aaaRosterAmbient {
-  from { transform: translate3d(-1%, -1%, 0) scale(1); }
-  to { transform: translate3d(1.5%, 1%, 0) scale(1.04); }
-}
-
-@keyframes aaaRosterLight {
-  from { opacity: .72; transform: scale(.94); }
-  to { opacity: 1; transform: scale(1.08); }
-}
-
-@media (max-width: 1050px) {
-  .aaa-roster__stage {
-    grid-template-columns: minmax(0, 1fr);
+@media (max-width: 980px) {
+  .real-roster {
+    min-height: 0;
   }
 
-  .aaa-roster__rail {
-    grid-template-columns: repeat(6, minmax(10rem, 1fr));
-    max-height: none;
-    overflow-x: auto;
-    overflow-y: hidden;
-    scroll-snap-type: x mandatory;
+  .real-roster__header {
+    grid-template-columns: 1fr;
+    gap: 1.2rem;
   }
 
-  .aaa-roster__card {
-    min-height: 14.5rem;
-    scroll-snap-align: start;
+  .real-roster__intro {
+    justify-self: start;
+    max-width: 42rem;
+  }
+
+  .real-roster--heroes .real-roster__cast {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(12rem, 14rem);
+    min-width: 0;
+  }
+
+  .real-roster__intel {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .real-roster__cta {
+    grid-column: 2;
+    justify-self: start;
   }
 }
 
-@media (max-width: 760px) {
-  .aaa-roster__header {
-    align-items: stretch;
-    flex-direction: column;
+@media (max-width: 720px) {
+  .real-roster {
+    padding: 4.5rem 0 4rem;
   }
 
-  .aaa-roster__switch {
-    width: 100%;
+  .real-roster__environment {
+    inset: -3%;
+    width: 106%;
+    height: 106%;
+    filter: brightness(.27) saturate(.92) contrast(1.08);
   }
 
-  .aaa-roster__switch button {
-    flex: 1;
-    min-height: 2.9rem;
+  .real-roster__cast-wrap {
+    margin-inline: -1rem;
+    padding-inline: 1rem;
   }
 
-  .aaa-roster__stage,
-  .aaa-roster__scene {
-    min-height: 38rem;
+  .real-roster__cast,
+  .real-roster--dinos .real-roster__cast {
+    grid-auto-columns: minmax(12.7rem, 68vw);
+    min-height: 29rem;
+    gap: .55rem;
   }
 
-  .aaa-roster__scene::before {
-    background:
-      linear-gradient(to top, rgba(5,6,8,.98) 0%, rgba(5,6,8,.72) 38%, rgba(5,6,8,.1) 70%, rgba(5,6,8,.18) 100%);
+  .real-roster__figure,
+  .real-roster--dinos .real-roster__figure {
+    height: 28.5rem;
   }
 
-  .aaa-roster__main-art,
-  .aaa-roster__stage[data-kind='dinos'] .aaa-roster__main-art {
-    width: 100%;
-    height: 74%;
-    right: -5%;
-    bottom: 18%;
-    object-position: center bottom;
+  .real-roster--heroes .real-roster__figure img,
+  .real-roster--dinos .real-roster__figure img {
+    width: 124%;
+    height: calc(100% - 2.3rem);
   }
 
-  .aaa-roster__identity {
-    left: 1.2rem;
-    right: 1.2rem;
-    bottom: 1.6rem;
-    width: auto;
+  .real-roster__fog--front {
+    bottom: 3.6rem;
   }
 
-  .aaa-roster__identity h3 {
-    max-width: 10ch;
-    font-size: clamp(2.6rem, 14vw, 4.6rem);
+  .real-roster__intel {
+    grid-template-columns: 1fr;
+    gap: .75rem;
+    padding-top: 1rem;
   }
 
-  .aaa-roster__description {
-    max-width: 29rem;
-    font-size: .88rem;
-    line-height: 1.55;
+  .real-roster__intel-index {
+    font-size: 1rem;
   }
 
-  .aaa-roster__watermark,
-  .aaa-roster__live-tag,
-  .aaa-roster__silhouette {
-    display: none;
+  .real-roster__cta {
+    grid-column: 1;
+    margin-top: .35rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .real-roster__cast,
+  .real-roster--dinos .real-roster__cast {
+    grid-auto-columns: 78vw;
+    min-height: 27rem;
   }
 
-  .aaa-roster__rail {
-    grid-template-columns: repeat(6, minmax(9.2rem, 43vw));
+  .real-roster__figure,
+  .real-roster--dinos .real-roster__figure {
+    height: 26.5rem;
   }
 
-  .aaa-roster__stage[data-kind='dinos'] .aaa-roster__rail {
-    grid-template-columns: repeat(10, minmax(9.2rem, 43vw));
+  .real-roster__figure-label strong {
+    font-size: 1.2rem;
   }
 
-  .aaa-roster__card {
-    min-height: 12rem;
-  }
-
-  .aaa-roster__footer {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-  }
-
-  .aaa-roster__footer strong,
-  .aaa-roster__footer span:last-child {
-    display: none;
+  .real-roster__description {
+    font-size: .86rem;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .aaa-roster__ambient,
-  .aaa-roster__scene-light,
-  .aaa-roster__main-art {
-    animation: none !important;
+  .real-roster__embers {
+    animation: none;
+  }
+
+  .real-roster__figure,
+  .real-roster__figure img,
+  .real-roster__figure-label strong {
+    transition: none;
   }
 }
